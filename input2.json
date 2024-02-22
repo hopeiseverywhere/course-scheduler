@@ -266,32 +266,56 @@
     },
     {
         "room": {
-            "name": "201",
+            "name": "210",
             "size": 60
         }
     },
     {
         "room": {
-            "name": "202",
+            "name": "216",
+            "size": 32
+        }
+    },
+    {
+        "room": {
+            "name": "220",
             "size": 60
         }
     },
     {
         "room": {
-            "name": "203",
+            "name": "305",
+            "size": 22
+        }
+    },
+    {
+        "room": {
+            "name": "306",
+            "size": 32
+        }
+    },
+    {
+        "room": {
+            "name": "307",
+            "size": 36
+        }
+    },
+    {
+        "room": {
+            "name": "402",
             "size": 60
         }
     },
     {
         "room": {
-            "name": "204",
-            "size": 60
+            "name": "409",
+            "size": 30
         }
     },
     {
         "room": {
-            "name": "205",
-            "size": 60
+            "name": "416",
+            "size": 46
         }
     }
 ]

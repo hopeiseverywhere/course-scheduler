@@ -7,7 +7,7 @@ from model.Section import Section
 class Criteria:
     # 4 criteria for calculating fitness
     # weights = [0, 0.5, 0.5, 0, 0]
-    weights = [0, 0.25, 0, 0.25]
+    weights = [0.25, 0.25, 0.5, 0.5]
 
     # 0. check for room overlapping of classes
     @staticmethod
@@ -19,14 +19,14 @@ class Criteria:
     # 1. check seat enough
     @staticmethod
     def is_seat_enough(r: Room, section: Section):
-        return r.Number_Of_Seats >= section.Number_Of_Seats
+        return r.number_of_seats >= section.number_of_students
 
     # 2. professor overlap
     @staticmethod
     def is_prof_overlapped(slots, section, number_of_rooms, time_id):
         po = False
 
-        dur = section.Duration
+        dur = section.duration
         for i in range(number_of_rooms, 0, -1):
             # for each hour of class
             for j in range(time_id, time_id + dur):
@@ -41,11 +41,11 @@ class Criteria:
                         if po:
                             return po
 
-            time_id += Constant.DAY_HOURS
+            time_id += Constant.DAY_SLOTS
         return po
 
     # 3. professor satisfied
     @staticmethod
     def is_prof_satisfied(section: Section, start_time: int, end_time: int):
-        return (start_time >= section.Preference_range[0] and
-                end_time <= section.Preference_range[1])
+        return (start_time >= section.pref_time_range[0] and
+                end_time <= section.pref_time_range[1])

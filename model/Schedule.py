@@ -1,3 +1,4 @@
+import random
 from random import randrange
 
 from model import Constant
@@ -14,14 +15,15 @@ class Schedule:
     """
     Schedule chromosome
     """
+    DAY_NUM, DAY_HOURS = Constant.DAYS_NUM, Constant.DAY_SLOTS
 
-    def __init__(self, configuration):
+    def __init__(self, configuration: Configuration):
         self._configuration = configuration
         # Fitness value of chromosome
         self._fitness = 0
 
         # Time-space slots, one entry represent one hour in one classroom
-        slots_length = (Constant.DAYS_NUM * Constant.DAY_HOURS
+        slots_length = (Constant.DAYS_NUM * Constant.DAY_SLOTS
                         * self._configuration.number_of_rooms)
         self._slots = [[] for _ in range(slots_length)]
 
@@ -70,6 +72,24 @@ class Schedule:
             return self
 
 
+    def random_selection(self, section: Section):
+        """
+        Make random selection of (day, time, room_id) from a give section
+        :param section:
+        :return: tuple (day, start_time, room_id)
+        """
+
+        dur = section.duration
+        pref_range = section.pref_time_range
+        number_of_students = section.number_of_students
+        number_of_students = Configuration.round_down_to_nearest_five(
+            number_of_students)
+        day = randrange(Schedule.DAY_NUM)
+        room_id = random.choice(
+            self._configuration.rooms_by_capacity[number_of_students])
+        # room = randrange(number_of_rooms)
+        start_time = randrange(pref_range[1] - dur)
+        return day, start_time, room_id
 
     def make_new_from_prototype(self, positions=None):
         """
@@ -86,28 +106,31 @@ class Schedule:
         # place sections at random position
         sections = self._configuration.sections
         number_of_rooms = self._configuration.number_of_rooms
-        DAY_NUM, DAY_HOURS = Constant.DAYS_NUM, Constant.DAY_HOURS
-        # print("len of sections", len(sections))
+
         # determine a random position of a section
         for section in sections:
-            dur = section.Duration
-            pref_range = section.Preference_range
+            # dur = section.duration
+            # pref_range = section.pref_time_range
+            # number_of_students = section.number_of_students
+            # number_of_students = Configuration.round_down_to_nearest_five(number_of_students)
+            #
+            # day = randrange(DAY_NUM)
+            # room_id = random.choice(self._configuration.rooms_by_capacity[number_of_students])
+            # # room = randrange(number_of_rooms)
+            # time = randrange(pref_range[1] - dur)
 
-            day = randrange(DAY_NUM)
-            room = randrange(number_of_rooms)
-            time = randrange(pref_range[1] - dur)
-            # time = randrange(DAY_HOURS - dur)
-            section.set_all(day, time, room)
+            day, start_time, room_id = self.random_selection(section)
+            section.set_all(day, start_time, room_id)
 
             reservation = Reservation.get_reservation(number_of_rooms
-                                                      , day, time, room)
+                                                      , day, start_time, room_id)
             if positions is not None:
-                positions.append(day)
-                positions.append(room)
-                positions.append(time)
+                positions.append(day) # day
+                positions.append(room_id) # room id
+                positions.append(start_time) # stat time
             reservation_index = hash(reservation)
             # fill time space slots for each hour of sections
-            for i in range(dur - 1, -1, -1):
+            for i in range(section.duration - 1, -1, -1):
                 new_chromosome_slots[reservation_index + i].append(section)
 
             # insert in section table of chromosome
@@ -115,8 +138,6 @@ class Schedule:
 
         new_chromosome.get_fitness()
         return new_chromosome
-
-
 
     def crossover(self, parent, number_of_crossover_points,
         crossover_prob):
@@ -143,7 +164,7 @@ class Schedule:
         parent_sections = parent.sections_table
         parent_course_sections = tuple(parent.sections_table.keys())
 
-        # number of classes
+        # number of sections
         size = len(sections)
 
         cp = size * [False]
@@ -162,7 +183,7 @@ class Schedule:
         for i in range(size):
             if first:
                 course_section = course_sections[i]
-                dur = course_section.Duration
+                dur = course_section.duration
                 reservation_index = sections[course_section]
                 # insert class from first parent
                 # into new chromosome's class table
@@ -173,7 +194,7 @@ class Schedule:
                         course_section)
             else:
                 course_section = parent_course_sections[i]
-                dur = course_section.Duration
+                dur = course_section.duration
                 reservation_index = parent_sections[course_section]
                 # insert class from second parent
                 # into new chromosome's class table
@@ -197,9 +218,9 @@ class Schedule:
     int, reservation: Reservation):
         # extract relevant prams and constant
         number_of_rooms = self._configuration.number_of_rooms
-        DAY_HOURS, DAYS_NUM = Constant.DAY_HOURS, Constant.DAYS_NUM
+        DAY_HOURS, DAYS_NUM = Constant.DAY_SLOTS, Constant.DAYS_NUM
         slots = self.slots
-        dur = section.Duration
+        dur = section.duration
 
         # if reservation index is provided, remove section hour from
         # current time-space slot
@@ -211,15 +232,11 @@ class Schedule:
 
         # determine the position of the section
         if reservation is None:
-            pref_range = section.Preference_range
+            day, start_time, room_id = self.random_selection(section)
+            section.set_all(day, start_time, room_id)
 
-            day = randrange(DAYS_NUM)
-            room = randrange(number_of_rooms)
-            time = randrange(pref_range[1] - dur)
-            # time = randrange(DAY_HOURS - dur)
-            section.set_all(day, time, room)
             reservation = Reservation.get_reservation(number_of_rooms
-                                                      , day, time, room)
+                                                      , day, start_time, room_id)
         # calculate the index of reservation
         reservation_idx = hash(reservation)
 
@@ -242,7 +259,7 @@ class Schedule:
         number_of_sections = len(sections_table)
         course_sections = tuple(sections_table.keys())
         configuration = self._configuration
-        number_of_rooms = configuration.number_of_rooms
+        # number_of_rooms = configuration.number_of_rooms
 
         # move selected number of sections at random position
         for i in range(mutation_size, 0, -1):
@@ -272,10 +289,8 @@ class Schedule:
         items = self._sections_table.items()
         slots = self._slots
         number_of_rooms = configuration.number_of_rooms
-        DAY_NUM, DAY_HOURS, DAY_START_HOUR = (Constant.DAYS_NUM,
-                                               Constant.DAY_HOURS,
-                                               Constant.DAY_START_HOUR)
-        day_size = DAY_HOURS * number_of_rooms
+        # DAY_NUM, DAY_HOURS = Constant.DAYS_NUM, Constant.DAY_SLOTS
+        day_size = Schedule.DAY_HOURS * number_of_rooms
 
         ci = 0
         get_room_by_id = configuration.get_room_by_id
@@ -285,15 +300,14 @@ class Schedule:
             reservation = Reservation.parse(reservation_index)
 
             # coordinates of time-space slot
-            day, time, room = (reservation.Day,
-                               reservation.Time, reservation.Room)
+            day, time, room = (reservation.day,
+                               reservation.time, reservation.room_id)
 
-            dur = section.Duration
+            dur = section.duration
 
             ro = Criteria.is_room_overlapped(slots, reservation, dur)
             # 1. check room overlapping
             criteria[ci + 0] = not ro
-
 
             r = get_room_by_id(room)
             # 2. does curr room have enough seats
@@ -305,7 +319,7 @@ class Schedule:
             po = Criteria.is_prof_overlapped(slots, section,
                                              number_of_rooms, time_id)
             criteria[ci + 2] = not po
-            # 4. if professor preference satisfied
+            # 4. if professor preference time satisfied
             start_time = time
             end_time = start_time + dur
 
@@ -335,6 +349,20 @@ class Schedule:
         # print("fitness: ", score / len(criteria))
         # print("----")
         self._fitness = score / len(criteria)
+    
+    def dominates(self, other):
+        better = False
+        for f, obj in enumerate(self.objectives):
+            if obj > other.objectives[f]:
+                return False
+
+            if obj < other.objectives[f]:
+                better = True
+
+        return better
+
+
+
 
     @property
     def configuration(self):
@@ -371,5 +399,5 @@ class Schedule:
     @property
     def converted_objectives(self):
         return self._converted_objectives
-
-
+    
+    

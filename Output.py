@@ -9,5 +9,5 @@ def get_result(solution: Schedule):
     sections = configuration._sections
 
     for section in sections:
-        if section.Room is not None:
+        if section.room_id is not None:
             print(section)

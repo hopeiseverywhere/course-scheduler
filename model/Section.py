@@ -9,31 +9,31 @@ class Section:
     _next_section_id = 0
 
     # Initializes class object
-    def __init__(self, course: str, professor: str, preference: list[str],
+    def __init__(self, course: str, professor: str, pref_time: list[str],
         requires_lab: bool, duration: int, students: int):
-        self.Id = Section._next_section_id
+        self.section_id = Section._next_section_id
         Section._next_section_id += 1
         # Course name
-        self.Course = course
+        self.course_name = course
         # Return pointer to professor who teaches
-        self.Professor = professor
+        self.prof_name = professor
         # Professor's preference
-        self.Preference = preference
-        # Professor's preference range
-        self.Preference_range = []
+        self.pref_time = pref_time
+        # Professor's preference time range
+        self.pref_time_range = []
         # Returns number of seats (students) required in room
-        self.Number_Of_Seats = students
+        self.number_of_students = students
         # Returns TRUE if class requires a lab
-        self.Lab_Required = requires_lab
+        self.lab_required = requires_lab
         # Returns duration of class in hours
-        self.Duration = duration
+        self.duration = duration
 
         # Section's day
-        self.Day = None
+        self.day = None
         # Section's start time
-        self.Start_Time = None
-        # Section's room' id
-        self.Room = None
+        self.start_time = None
+        # Section's room's id
+        self.room_id = None
 
     # def assign_room(self, room_id):
     #     # Randomly select a room from available rooms
@@ -41,18 +41,18 @@ class Section:
 
     def assign_time(self):
         # Randomly select a start time from available times
-        self.start_time = randrange(self.Preference_range[0] + self.Duration
-                                    , self.Preference_range[1] - self.Duration)
+        self.start_time = randrange(self.pref_time_range[0] + self.duration
+                                    , self.pref_time_range[1] - self.duration)
 
     def assign_day(self):
-        self.Day = randrange(Constant.DAYS_NUM)
+        self.day = randrange(Constant.DAYS_NUM)
 
     # Returns TRUE if another section has same professor at same time
     def professor_overlaps(self, other: 'Section'):
-        return self.Professor == other.Professor
+        return self.prof_name == other.prof_name
 
     def __hash__(self):
-        return hash(self.Id)
+        return hash(self.section_id)
 
     def __eq__(self, other):
         if not isinstance(other, self.__class__):
@@ -65,15 +65,15 @@ class Section:
         return not (self == other)
 
     def __str__(self):
-        return (f"Section ID: {self.Id}, "
-                f"Course: {self.Course}, "
-                f"Professor: {self.Professor}, "
-                f"Preference: {self.Preference}, "
-                f"Requires Lab: {self.Lab_Required}, "
-                f"Duration: {self.Duration}, "
-                f"Start Day: {self.Day}, "
-                f"Start Time: {self.Start_Time}, "
-                f"Room: {self.Room}")
+        return (f"Section ID: {self.section_id}, "
+                f"Course: {self.course_name}, "
+                f"Professor: {self.prof_name}, "
+                f"Preference: {self.pref_time}, "
+                f"Requires Lab: {self.lab_required}, "
+                f"Duration: {self.duration}, "
+                f"Start Day: {self.day}, "
+                f"Start Time: {self.start_time}, "
+                f"Room: {self.room_id}")
 
     # Restarts ID assignments
     @staticmethod
@@ -82,17 +82,34 @@ class Section:
 
     @staticmethod
     def set_room(self, room_name):
-        self.Room = room_name
+        self.room_id = room_name
 
     @staticmethod
     def set_start_day(self, day):
-        self.Day = day
+        self.day = day
 
     @staticmethod
     def set_start_time(self, time):
-        self.Start_Time = time
+        self.start_time = time
+
+    @staticmethod
+    def time_slot_to_real_time(total_minutes):
+        # get hour
+        hours = total_minutes // 60
+        # get minutes
+        minutes = total_minutes % 60
+        return f"{hours:02d}:{minutes:02d}"
 
     def set_all(self, day, time, room_name):
-        self.Day = day
-        self.Start_Time = time
-        self.Room = room_name
+        """
+        Set day, time, room to a section that has finished random generation
+        :param day:
+        :param time: relative time slot in 20-minute segmentation
+        :param room_name:
+        :return:
+        """
+        self.day = day
+        # convert relative time to real time
+        total_minutes = time * Constant.TIME_SEGMENT + Constant.DAY_START_MINUTES + Constant.DAY_START_HOUR * Constant.HOUR_TO_MINUTES
+        self.start_time = self.time_slot_to_real_time(total_minutes)
+        self.room_id = room_name

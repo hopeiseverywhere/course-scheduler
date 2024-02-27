@@ -6,26 +6,26 @@ class Reservation:
     _reservation_pool = {}
 
     def __init__(self, day: int, time: int, room: int):
-        self.Day = day
-        self.Time = time
-        self.Room = room
+        self.day = day
+        self.time = time
+        self.room_id = room
 
     @staticmethod
     def parse(hash_code):
         reservation = Reservation._reservation_pool.get(hash_code)
         if reservation is None:
-            day = hash_code // (Constant.DAY_HOURS * Reservation.NR)
-            hash_code2 = hash_code - (day * Constant.DAY_HOURS * Reservation.NR)
-            room = hash_code2 // Constant.DAY_HOURS
-            time = hash_code2 % Constant.DAY_HOURS
+            day = hash_code // (Constant.DAY_SLOTS * Reservation.NR)
+            hash_code2 = hash_code - (day * Constant.DAY_SLOTS * Reservation.NR)
+            room = hash_code2 // Constant.DAY_SLOTS
+            time = hash_code2 % Constant.DAY_SLOTS
             reservation = Reservation(day, time, room)
             Reservation._reservation_pool[hash_code] = reservation
         return reservation
 
     @staticmethod
     def get_hash_code(day: int, time: int, room: int):
-        return (day * Reservation.NR * Constant.DAY_HOURS
-                + room * Constant.DAY_HOURS + time)
+        return (day * Reservation.NR * Constant.DAY_SLOTS
+                + room * Constant.DAY_SLOTS + time)
 
     @staticmethod
     def get_reservation(nr: int, day: int, time: int, room: int):
@@ -41,4 +41,4 @@ class Reservation:
         return reservation
 
     def __hash__(self) -> int:
-        return Reservation.get_hash_code(self.Day, self.Time, self.Room)
+        return Reservation.get_hash_code(self.day, self.time, self.room_id)

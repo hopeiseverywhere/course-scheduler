@@ -5,7 +5,7 @@ from collections import defaultdict
 
 class HtmlOutput:
     ROOM_COLUMN_NUMBER = Constant.DAYS_NUM + 1
-    ROOM_ROW_NUMBER = Constant.DAY_HOURS + 1
+    ROOM_ROW_NUMBER = Constant.DAY_SLOTS + 1
     COLOR1 = "#319378"
     COLOR2 = "#CE0000"
     CRITERIAS = ('RO', 'SE', 'PO', 'PS')
@@ -15,9 +15,23 @@ class HtmlOutput:
     FAIL_DESCR = ("Current room has overlapping", "Current room has not enough seats",
                        "Current room with not enough computers if they are required",
                        "Professors have overlapping classes", "Student groups has overlapping classes")
+    # PERIODS = (
+    #     "", "9 - 10", "10 - 11", "11 - 12", "12 - 13", "13 - 14", "14 - 15", "15 - 16", "16 - 17", "17 - 18", "18 - 19",
+    #     "19 - 20", "20 - 21")
     PERIODS = (
-        "", "9 - 10", "10 - 11", "11 - 12", "12 - 13", "13 - 14", "14 - 15", "15 - 16", "16 - 17", "17 - 18", "18 - 19",
-        "19 - 20", "20 - 21")
+        "", "9:50 - 10:10", "10:10 - 10:30", "10:30 - 10:50", "10:50 - 11:10",
+        "11:10 - 11:30", "11:30 - 11:50",
+        "11:50 - 12:10", "12:10 - 12:30", "12:30 - 12:50", "12:50 - 13:10",
+        "13:10 - 13:30", "13:30 - 13:50",
+        "13:50 - 14:10", "14:10 - 14:30", "14:30 - 14:50", "14:50 - 15:10",
+        "15:10 - 15:30", "15:30 - 15:50",
+        "15:50 - 16:10", "16:10 - 16:30", "16:30 - 16:50", "16:50 - 17:10",
+        "17:10 - 17:30", "17:30 - 17:50",
+        "17:50 - 18:10", "18:10 - 18:30", "18:30 - 18:50", "18:50 - 19:10",
+        "19:10 - 19:30", "19:30 - 19:50",
+        "19:50 - 20:10", "20:10 - 20:30", "20:30 - 20:50", "20:50 - 21:10",
+        "21:10 - 21:30", "21:30 - 21:50"
+    )
     WEEK_DAYS = ("MON", "TUE", "WED", "THU", "FRI")
 
     @staticmethod
@@ -27,8 +41,8 @@ class HtmlOutput:
         CRITERIAS = HtmlOutput.CRITERIAS
         length_CRITERIAS = len(CRITERIAS)
 
-        sb = [cc.Course, "<br />", cc.Professor, "<br />"]
-        if cc.Lab_Required:
+        sb = [cc.course_name, "<br />", cc.prof_name, "<br />"]
+        if cc.lab_required:
             sb.append("Lab<br />")
 
         for i in range(length_CRITERIAS):
@@ -60,10 +74,10 @@ class HtmlOutput:
             reservation = Reservation.parse(reservation_index)
 
             # coordinate of time-space slot
-            dayId = reservation.Day + 1
-            periodId = reservation.Time + 1
-            roomId = reservation.Room
-            dur = cc.Duration
+            dayId = reservation.day + 1
+            periodId = reservation.time + 1
+            roomId = reservation.room_id
+            dur = cc.duration
 
             key = (periodId, roomId)
             if key in slot_table:
@@ -128,7 +142,7 @@ class HtmlOutput:
             for periodId in range(HtmlOutput.ROOM_ROW_NUMBER):
                 if periodId == 0:
                     sb.append("<div id='room_")
-                    sb.append(room.Name)
+                    sb.append(room.name)
                     sb.append("' style='padding: 0.5em'>\n")
                     sb.append("<table style='border-collapse: collapse; width: 95%'>\n")
                     sb.append(HtmlOutput.getTableHeader(room))
@@ -158,7 +172,7 @@ class HtmlOutput:
 
     @staticmethod
     def getTableHeader(room):
-        sb = ["<tr><th style='border: .1em solid black' scope='col' colspan='2'>Room: ", room.Name, "</th>\n"]
+        sb = ["<tr><th style='border: .1em solid black' scope='col' colspan='2'>Room: ", room.name, "</th>\n"]
         for weekDay in HtmlOutput.WEEK_DAYS:
             sb.append("<th style='border: .1em solid black; padding: .25em; width: 15%' scope='col' rowspan='2'>")
             sb.append(weekDay)
@@ -168,7 +182,7 @@ class HtmlOutput:
         sb.append("<th style='border: .1em solid black; padding: .25em'>Lab: ")
 
         sb.append("<th style='border: .1em solid black; padding: .25em'>Seats: ")
-        sb.append(room.Number_Of_Seats)
+        sb.append(room.number_of_seats)
         sb.append("</th>\n")
         sb.append("</tr>\n")
         return "".join(str(v) for v in sb)

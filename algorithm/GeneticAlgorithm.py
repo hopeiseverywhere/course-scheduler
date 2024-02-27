@@ -36,8 +36,8 @@ class GeneticAlgorithm:
         configuration,
         crossover_pts=2,
         mutation_size=2,
-        crossover_prob=90,
-        mutation_prob=3):
+        crossover_prob=95,
+        mutation_prob=1):
         """
 
         :type configuration: Configuration
@@ -74,8 +74,9 @@ class GeneticAlgorithm:
             # reached best
             if best.fitness > min_fitness:
                 break
-            if repeat >= max_repeat * 2:
-                print(last_best_fit)
+            if current_generation >= max_repeat * 2:
+                print()
+                print(self.result._fitness)
                 break
             
             difference = abs(best.fitness - last_best_fit)
@@ -144,7 +145,7 @@ class GeneticAlgorithm:
                 # group is full, remove worst in the group
                 best_flags[pos] = False
 
-        # store chromosomes in the best chromosome grop
+        # store chromosomes in the best chromosome group
         best_chromosomes[j] = chromosome_index
         best_flags[chromosome_index] = True
 

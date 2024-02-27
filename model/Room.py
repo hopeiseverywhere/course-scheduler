@@ -4,17 +4,17 @@ class Room:
     _next_room_id = 0
 
     # Initializes room data and assign ID to room
-    def __init__(self, name, number_of_seats):
-        # Returns room ID - automatically assigned
-        self.Id = Room._next_room_id
+    def __init__(self, name: str, number_of_seats: int):
+        # room ID - automatically assigned
+        self.id = Room._next_room_id
         Room._next_room_id += 1
-        # Returns name
-        self.Name = name
-        # Returns number of seats in room
-        self.Number_Of_Seats = number_of_seats
+        # room name in string
+        self.name = name
+        # number of seats in room in int
+        self.number_of_seats = number_of_seats
 
     def __hash__(self):
-        return hash(self.Id)
+        return hash(self.id)
 
     # Compares ID's of two objects which represent rooms
     def __eq__(self, other):
@@ -28,8 +28,8 @@ class Room:
         return not (self == other)
 
     def __str__(self):
-        return (f"Room ID: {self.Id}, Name: {self.Name}, "
-                f"Number of Seats: {self.Number_Of_Seats}")
+        return (f"Room ID: {self.id}, Name: {self.name}, "
+                f"Number of Seats: {self.number_of_seats}")
 
     # Restarts ID assignments
     @staticmethod

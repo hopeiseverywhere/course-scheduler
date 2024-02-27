@@ -4,10 +4,12 @@
             "id": 1,
             "course": "5001",
             "professor": "Mullen",
-            "preference": ["morning", "afternoon"],
+            "pref-day": [1,2,3],
+            "pref_time": ["morning", "afternoon", "evening"],
             "lab": true,
-            "duration": 4,
-            "students": 60
+            "duration": 10,
+            "students": 60,
+            "avoid": ["5002"]
         }
     },
     {
@@ -15,9 +17,9 @@
             "id": 2,
             "course": "5003",
             "professor": "Mullen",
-            "preference": ["morning", "afternoon"],
-            "lab": true,
-            "duration": 2,
+            "pref_time": ["morning", "afternoon", "evening"],
+            "lab": false,
+            "duration": 5,
             "students": 60
         }
     },
@@ -26,9 +28,9 @@
             "id": 3,
             "course": "5004",
             "professor": "Bonaci",
-            "preference": ["morning", "afternoon"],
+            "pref_time": ["morning", "afternoon", "evening"],
             "lab": true,
-            "duration": 4,
+            "duration": 10,
             "students": 60
         }
     },
@@ -37,9 +39,9 @@
             "id": 4,
             "course": "5005",
             "professor": "Bonaci",
-            "preference": ["morning", "afternoon"],
-            "lab": true,
-            "duration": 2,
+            "pref_time": ["morning", "afternoon", "evening"],
+            "lab": false,
+            "duration": 5,
             "students": 60
         }
     },
@@ -48,9 +50,9 @@
             "id": 5,
             "course": "5002",
             "professor": "Singh",
-            "preference": ["morning", "afternoon"],
+            "pref_time": ["morning", "afternoon", "evening"],
             "lab": false,
-            "duration": 4,
+            "duration": 10,
             "students": 60
         }
     },
@@ -59,9 +61,9 @@
             "id": 6,
             "course": "5008",
             "professor": "Singh",
-            "preference": ["morning", "afternoon", "evening"],
+            "pref_time": ["morning", "afternoon", "evening"],
             "lab": true,
-            "duration": 4,
+            "duration": 10,
             "students": 60
         }
     },
@@ -70,9 +72,9 @@
             "id": 7,
             "course": "5009",
             "professor": "Singh",
-            "preference": ["morning", "afternoon", "evening"],
+            "pref_time": ["morning", "afternoon", "evening"],
             "lab": true,
-            "duration": 2,
+            "duration": 5,
             "students": 60
         }
     },
@@ -81,9 +83,9 @@
             "id": 8,
             "course": "5002",
             "professor": "Veliz",
-            "preference": ["morning", "afternoon", "evening"],
+            "pref_time": ["morning", "afternoon", "evening"],
             "lab": false,
-            "duration": 4,
+            "duration": 10,
             "students": 40
         }
     },
@@ -92,9 +94,9 @@
             "id": 9,
             "course": "5004",
             "professor": "Veliz",
-            "preference": ["morning", "afternoon", "evening"],
+            "pref_time": ["morning", "afternoon", "evening"],
             "lab": true,
-            "duration": 4,
+            "duration": 10,
             "students": 40
         }
     },
@@ -103,9 +105,9 @@
             "id": 10,
             "course": "5005",
             "professor": "Veliz",
-            "preference": ["morning", "afternoon", "evening"],
+            "pref_time": ["morning", "afternoon", "evening"],
             "lab": true,
-            "duration": 2,
+            "duration": 5,
             "students": 40
         }
     },
@@ -114,9 +116,9 @@
             "id": 11,
             "course": "5001",
             "professor": "Geeng",
-            "preference": ["morning", "afternoon", "evening"],
+            "pref_time": ["morning", "afternoon", "evening"],
             "lab": true,
-            "duration": 4,
+            "duration": 10,
             "students": 30
         }
     },
@@ -125,9 +127,9 @@
             "id": 12,
             "course": "5003",
             "professor": "Geeng",
-            "preference": ["morning", "afternoon", "evening"],
+            "pref_time": ["morning", "afternoon", "evening"],
             "lab": true,
-            "duration": 2,
+            "duration": 5,
             "students": 30
         }
     },
@@ -136,9 +138,9 @@
             "id": 13,
             "course": "5004",
             "professor": "Geeng",
-            "preference": ["morning", "afternoon", "evening"],
+            "pref_time": ["morning", "afternoon", "evening"],
             "lab": true,
-            "duration": 4,
+            "duration": 10,
             "students": 30
         }
     },
@@ -147,9 +149,9 @@
             "id": 14,
             "course": "5005",
             "professor": "Geeng",
-            "preference": ["morning", "afternoon", "evening"],
+            "pref_time": ["morning", "afternoon", "evening"],
             "lab": true,
-            "duration": 2,
+            "duration": 5,
             "students": 30
         }
     },
@@ -158,9 +160,9 @@
             "id": 15,
             "course": "5004",
             "professor": "Cobbe",
-            "preference": ["morning", "afternoon", "evening"],
+            "pref_time": ["morning", "afternoon", "evening"],
             "lab": true,
-            "duration": 4,
+            "duration": 10,
             "students": 30
         }
     },
@@ -169,9 +171,9 @@
             "id": 16,
             "course": "5005",
             "professor": "Cobbe",
-            "preference": ["morning", "afternoon", "evening"],
+            "pref_time": ["morning", "afternoon", "evening"],
             "lab": true,
-            "duration": 2,
+            "duration": 5,
             "students": 30
         }
     },
@@ -180,9 +182,9 @@
             "id": 17,
             "course": "5001",
             "professor": "Mishra",
-            "preference": ["afternoon", "evening"],
+            "pref_time": ["morning", "afternoon", "evening"],
             "lab": true,
-            "duration": 4,
+            "duration": 10,
             "students": 30
         }
     },
@@ -191,9 +193,9 @@
             "id": 18,
             "course": "5003",
             "professor": "Mishra",
-            "preference": ["afternoon", "evening"],
+            "pref_time": ["morning", "afternoon", "evening"],
             "lab": true,
-            "duration": 2,
+            "duration": 5,
             "students": 30
         }
     },
@@ -202,9 +204,9 @@
             "id": 19,
             "course": "5002",
             "professor": "Mishra",
-            "preference": ["afternoon", "evening"],
+            "pref_time": ["morning", "afternoon", "evening"],
             "lab": true,
-            "duration": 4,
+            "duration": 10,
             "students": 30
         }
     },
@@ -213,9 +215,9 @@
             "id": 20,
             "course": "5008",
             "professor": "Hussein",
-            "preference": ["evening"],
+            "pref_time": ["morning", "afternoon", "evening"],
             "lab": true,
-            "duration": 4,
+            "duration": 10,
             "students": 30
         }
     },
@@ -225,9 +227,9 @@
             "id": 21,
             "course": "5009",
             "professor": "Hussein",
-            "preference": ["evening"],
+            "pref_time": ["morning", "afternoon", "evening"],
             "lab": true,
-            "duration": 2,
+            "duration": 5,
             "students": 30
         }
     },
@@ -236,9 +238,9 @@
             "id": 22,
             "course": "5008",
             "professor": "Jelani",
-            "preference": ["evening"],
+            "pref_time": ["morning", "afternoon", "evening"],
             "lab": true,
-            "duration": 4,
+            "duration": 10,
             "students": 30
         }
     },
@@ -247,9 +249,9 @@
             "id": 23,
             "course": "5009",
             "professor": "Hussein",
-            "preference": ["evening"],
+            "pref_time": ["morning", "afternoon", "evening"],
             "lab": true,
-            "duration": 2,
+            "duration": 5,
             "students": 30
         }
     },
@@ -258,58 +260,64 @@
             "id": 24,
             "course": "5002",
             "professor": "Shafer",
-            "preference": ["evening"],
+            "pref_time": ["morning", "afternoon", "evening"],
             "lab": true,
-            "duration": 4,
+            "duration": 10,
             "students": 30
         }
     },
     {
         "room": {
-            "name": "201",
+            "name": "210",
             "size": 60
         }
     },
     {
         "room": {
-            "name": "202",
+            "name": "216",
+            "size": 32
+        }
+    },
+    {
+        "room": {
+            "name": "220",
             "size": 60
         }
     },
     {
         "room": {
-            "name": "203",
+            "name": "305",
+            "size": 22
+        }
+    },
+    {
+        "room": {
+            "name": "306",
+            "size": 32
+        }
+    },
+    {
+        "room": {
+            "name": "307",
+            "size": 36
+        }
+    },
+    {
+        "room": {
+            "name": "402",
             "size": 60
         }
     },
     {
         "room": {
-            "name": "204",
-            "size": 60
+            "name": "409",
+            "size": 30
         }
     },
     {
         "room": {
-            "name": "205",
-            "size": 60
-        }
-    },
-    {
-        "room": {
-            "name": "301",
-            "size": 60
-        }
-    },
-    {
-        "room": {
-            "name": "302",
-            "size": 60
-        }
-    },
-    {
-        "room": {
-            "name": "303",
-            "size": 60
+            "name": "416",
+            "size": 46
         }
     }
 ]

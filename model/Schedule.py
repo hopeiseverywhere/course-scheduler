@@ -23,7 +23,7 @@ class Schedule:
         self._fitness = 0
 
         # Time-space slots, one entry represent one hour in one classroom
-        slots_length = (Constant.DAYS_NUM * Constant.DAY_SLOTS
+        slots_length = (Schedule.DAY_NUM * Schedule.DAY_HOURS
                         * self._configuration.number_of_rooms)
         self._slots = [[] for _ in range(slots_length)]
 
@@ -258,7 +258,7 @@ class Schedule:
         # number of sections
         number_of_sections = len(sections_table)
         course_sections = tuple(sections_table.keys())
-        configuration = self._configuration
+        # configuration = self._configuration
         # number_of_rooms = configuration.number_of_rooms
 
         # move selected number of sections at random position

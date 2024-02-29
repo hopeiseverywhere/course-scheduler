@@ -27,7 +27,7 @@ def main():
     # # print("------- finished testing")
     #
     alg = GeneticAlgorithm(configuration)
-    alg.run(9999, 0.97)
+    alg.run(9999, 0.99)
     # # also for testing
     get_result(alg.result)
 

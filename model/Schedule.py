@@ -5,7 +5,7 @@ from model import Constant
 import numpy as np
 from random import randrange
 
-from model.Cirteria import Criteria
+from model.Criteria import Criteria
 from model.Reservation import Reservation
 from model.Section import Section
 from model.Configuration import Configuration

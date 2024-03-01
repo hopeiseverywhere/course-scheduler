@@ -70,14 +70,14 @@ class HtmlOutput:
         ROOM_COLUMN_NUMBER = HtmlOutput.ROOM_COLUMN_NUMBER
         getCourseClass = HtmlOutput.getCourseClass
 
-        for cc, reservation_index in items():
-            reservation = Reservation.parse(reservation_index)
+        for section, reservation_index in items():
+            # reservation = Reservation.parse(reservation_index)
 
             # coordinate of time-space slot
-            dayId = reservation.day + 1
-            periodId = reservation.time + 1
-            roomId = reservation.room_id
-            dur = cc.duration
+            dayId = section.day + 1
+            periodId = section.relative_start + 1
+            roomId = section.room_id
+            dur = section.duration
 
             key = (periodId, roomId)
             if key in slot_table:
@@ -100,7 +100,7 @@ class HtmlOutput:
                 room_schedule = ROOM_COLUMN_NUMBER * [None]
                 time_table[key] = room_schedule
 
-            room_schedule[dayId] = "".join(getCourseClass(cc, solution.criteria, ci))
+            room_schedule[dayId] = "".join(getCourseClass(section, solution.criteria, ci))
             ci += len(HtmlOutput.CRITERIAS)
 
         return time_table
@@ -148,6 +148,7 @@ class HtmlOutput:
                     sb.append(HtmlOutput.getTableHeader(room))
                 else:
                     key = (periodId, roomId)
+                    # print(key)
                     room_duration = slot_table[key] if key in slot_table.keys() else None
                     room_schedule = time_table[key] if key in time_table.keys() else None
                     sb.append("<tr>")

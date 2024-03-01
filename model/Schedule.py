@@ -109,7 +109,7 @@ class Schedule:
 
         # determine a random position of a section
         for section in sections:
-            # dur = section.duration
+            dur = section.duration
             # pref_range = section.pref_time_range
             # number_of_students = section.number_of_students
             # number_of_students = Configuration.round_down_to_nearest_five(number_of_students)
@@ -120,7 +120,7 @@ class Schedule:
             # time = randrange(pref_range[1] - dur)
 
             day, start_time, room_id = self.random_selection(section)
-            section.set_all(day, start_time, room_id)
+            section.set_all(day, start_time, room_id, dur)
 
             reservation = Reservation.get_reservation(number_of_rooms
                                                       , day, start_time, room_id)
@@ -233,7 +233,7 @@ class Schedule:
         # determine the position of the section
         if reservation is None:
             day, start_time, room_id = self.random_selection(section)
-            section.set_all(day, start_time, room_id)
+            section.set_all(day, start_time, room_id, dur)
 
             reservation = Reservation.get_reservation(number_of_rooms
                                                       , day, start_time, room_id)
@@ -262,7 +262,7 @@ class Schedule:
         # number_of_rooms = configuration.number_of_rooms
 
         # move selected number of sections at random position
-        for i in range(mutation_size, 0, -1):
+        for _i in range(mutation_size, 0, -1):
             # select random chromosome for movement
             move_pos = randrange(number_of_sections)
 

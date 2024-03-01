@@ -2,7 +2,7 @@ import random
 from random import randrange
 
 from model import Constant
-
+from model import Configuration
 
 class Section:
     # ID counter used to assign IDs automatically
@@ -32,12 +32,13 @@ class Section:
         self.day = None
         # Section's start time
         self.start_time = None
+        # Section's end time
+        self.end_time = None
         # Section's room's id
         self.room_id = None
+        self.relative_start = None
 
-    # def assign_room(self, room_id):
-    #     # Randomly select a room from available rooms
-    #     self.room = room_id
+
 
     def assign_time(self):
         # Randomly select a start time from available times
@@ -73,7 +74,9 @@ class Section:
                 f"Duration: {self.duration}, "
                 f"Start Day: {self.day}, "
                 f"Start Time: {self.start_time}, "
-                f"Room: {self.room_id}")
+                f"Room: {self.room_id}, "
+                f"Relative Start: {self.relative_start}")
+
 
     # Restarts ID assignments
     @staticmethod
@@ -93,14 +96,16 @@ class Section:
         self.start_time = time
 
     @staticmethod
-    def time_slot_to_real_time(total_minutes):
+    def time_slot_to_real_time(slot):
+        # get total minutes
+        total_minutes = slot * Constant.TIME_SEGMENT + Constant.DAY_START_HOUR * Constant.HOUR_TO_MINUTES + Constant.DAY_START_MINUTES
         # get hour
         hours = total_minutes // 60
         # get minutes
         minutes = total_minutes % 60
         return f"{hours:02d}:{minutes:02d}"
 
-    def set_all(self, day, time, room_name):
+    def set_all(self, day, time, room_name, duration):
         """
         Set day, time, room to a section that has finished random generation
         :param day:
@@ -109,7 +114,22 @@ class Section:
         :return:
         """
         self.day = day
-        # convert relative time to real time
-        total_minutes = time * Constant.TIME_SEGMENT + Constant.DAY_START_MINUTES + Constant.DAY_START_HOUR * Constant.HOUR_TO_MINUTES
-        self.start_time = self.time_slot_to_real_time(total_minutes)
+        self.relative_start = time
+        # convert relative time to actual time
+        self.start_time = self.time_slot_to_real_time(time)
+        self.end_time = self.time_slot_to_real_time(time + duration)
         self.room_id = room_name
+
+    @staticmethod
+    def section_to_dict(section):
+        return {
+            "Section Id": section.section_id,
+            "Course": section.course_name,
+            "Prof": section.prof_name,
+            "Start Day": section.day,
+            "Start Time": section.start_time,
+            "End Time": section.end_time,
+            "Room": section.room_id,
+            "Dur": section.duration,
+            "Relative Start": section.relative_start
+        }

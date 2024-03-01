@@ -44,7 +44,6 @@ class Configuration:
         # print(self.rooms_by_capacity)
 
     def parse_file(self, file_name: str) -> None:
-        # clear previously parsed objects
         self._rooms = {}
         self._sections = []
 

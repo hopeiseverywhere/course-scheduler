@@ -120,6 +120,10 @@ class Section:
         self.end_time = self.time_slot_to_real_time(time + duration)
         self.room_id = room_name
 
+    def set_actual_time(self):
+        # convert relative time to actual time
+        self.start_time = self.time_slot_to_real_time(self.relative_start)
+        self.end_time = self.time_slot_to_real_time(self.relative_start + self.duration)
     @staticmethod
     def section_to_dict(section):
         return {

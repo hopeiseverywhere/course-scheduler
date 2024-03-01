@@ -42,12 +42,6 @@ class GeneticAlgorithm:
 
         :type configuration: Configuration
         """
-        # self._replace_by_generation = None
-        # self._best_flags = []
-        # self._chromosomes = []
-        # self._best_chromosomes = []
-        # self._prototype: Schedule = None
-        # self._current_best_size = None
 
         prototype = Schedule(configuration)
         self.init_algorithm(prototype)
@@ -56,18 +50,22 @@ class GeneticAlgorithm:
         self._crossover_prob = crossover_prob
         self._mutation_prob = mutation_prob
 
-    def run(self, max_repeat=9999, min_fitness=0.99):
+    def run(self, max_repeat=9999, min_fitness=0.99, timeout=None):
         # clear best chromosome group from previous execution
         self.clear_best()
-
         self.initialize(self._chromosomes)
         random.seed(round(time() * 1000))
         # current generation
         current_generation = 0
         repeat = 0
         last_best_fit = 0.0
+        start_time = time()
 
         while True:
+            elapsed_time = time() - start_time
+            if timeout and elapsed_time >= timeout:
+                raise TimeoutError("Algorithm execution exceeded the specified timeout")
+            
             best = self.result
             print("Fitness:", "{:f}\t".format(best.fitness),
                   "Generation:", current_generation, end="\r")
@@ -84,6 +82,7 @@ class GeneticAlgorithm:
                 repeat += 1
             else:
                 repeat = 0
+
             if repeat >= (max_repeat / 100):
                 random.seed(round(time() * 1000))
                 self.set_replace_by_generation(self._replace_by_generation * 3)
@@ -206,12 +205,26 @@ class GeneticAlgorithm:
         :param population:
         :return:
         """
+        # add_to_best = self.add_to_best
         prototype = self._prototype
         length_chromosomes = len(population)
+
         # print("length population", length_chromosomes)
         for i in range(0, length_chromosomes):
             # add new chromosome to population
+
             population[i] = prototype.make_new_from_prototype()
+            # add_to_best(i)
+
+    def cleanup(self):
+        """
+        Perform cleanup tasks and deallocate resources.
+        """
+        self.clear_best()  # Clear best chromosome group
+        self._chromosomes = None  # Set reference to chromosomes list to None
+        self._best_flags = None  # Set reference to best flags list to None
+        self._best_chromosomes = None  # Set reference to best chromosomes list to None
+        self._prototype = None  # Set reference to prototype to None
 
     @property
     def result(self):

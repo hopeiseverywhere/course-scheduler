@@ -4,18 +4,32 @@ from model.Configuration import Configuration
 from algorithm.GeneticAlgorithm import GeneticAlgorithm
 from Output import get_result
 
-def get_result(json):
-
+def generate_result(json_data, min_accuracy=0.90):
     start_time = int(round(time.time() * 1000))
     configuration = Configuration()
 
-    file_name = json
-    configuration.parse_file(file_name)
+    try:
 
-    alg = GeneticAlgorithm(configuration)
-    alg.run(9999, 0.99)
+        configuration.parse_file(json_data)
+        print("Parsing file completed.")
 
-    get_result(alg.result)
+        alg = GeneticAlgorithm(configuration)
+        print("Genetic algorithm initialized.")
 
-    seconds = (int(round(time.time() * 1000)) - start_time) / 1000.0
-    print("\nCompleted in {} secs.\n".format(seconds))
+        alg.run(9999, min_accuracy)
+        print("Genetic algorithm run completed.")
+
+        json_string = get_result(alg.result)
+        print("Result obtained successfully.")
+
+
+
+        seconds = (int(round(time.time() * 1000)) - start_time) / 1000.0
+        print("\nCompleted in {} secs.\n".format(seconds))
+        return json_string
+    except Exception as e:
+        print("Error:", e)
+
+def run(alg: GeneticAlgorithm, min_accuracy=0.90):
+    alg.run(9999, min_accuracy)
+    return get_result(alg.result)

@@ -1,6 +1,6 @@
 import random
 from random import randrange
-
+from typing import Dict, List
 from model import Constant
 import numpy as np
 from random import randrange
@@ -25,11 +25,11 @@ class Schedule:
         # Time-space slots, one entry represent one hour in one classroom
         slots_length = (Schedule.DAY_NUM * Schedule.DAY_HOURS
                         * self._configuration.number_of_rooms)
-        self._slots = [[] for _ in range(slots_length)]
+        self._slots: List[List[Section]] = [[] for _ in range(slots_length)]
 
         # Section table for chromosome
         # Used to determine first time-space slot used by sections
-        self._sections_table = {}
+        self._sections_table: Dict[Section, int] = {}
 
         # Flags of section requirements satisfaction
         self._criteria = np.zeros(
@@ -41,9 +41,9 @@ class Schedule:
         # Initialize rank value to 0
         self._rank = 0
         # Initialize converted objectives list
-        self._converted_objectives = []
+        self._converted_objectives: list[Schedule] = []
         # Initialize objectives list
-        self._objectives = []
+        self._objectives: List[int] = []
 
     def __str__(self):
 
@@ -71,7 +71,6 @@ class Schedule:
                 self._converted_objectives = other.converted_objectives[:]
             return self
 
-
     def random_selection(self, section: Section):
         """
         Make random selection of (day, time, room_id) from a give section
@@ -89,6 +88,7 @@ class Schedule:
             self._configuration.rooms_by_capacity[number_of_students])
         # room = randrange(number_of_rooms)
         start_time = randrange(pref_range[1] - dur)
+        # print(day, start_time, room_id)
         return day, start_time, room_id
 
     def make_new_from_prototype(self, positions=None):
@@ -108,6 +108,7 @@ class Schedule:
         number_of_rooms = self._configuration.number_of_rooms
 
         # determine a random position of a section
+
         for section in sections:
             dur = section.duration
             # pref_range = section.pref_time_range
@@ -121,26 +122,26 @@ class Schedule:
 
             day, start_time, room_id = self.random_selection(section)
             section.set_all(day, start_time, room_id, dur)
+            reservation = Reservation.get_reservation(
+                number_of_rooms, day, start_time, room_id)
 
-            reservation = Reservation.get_reservation(number_of_rooms
-                                                      , day, start_time, room_id)
-            if positions is not None:
-                positions.append(day) # day
-                positions.append(room_id) # room id
-                positions.append(start_time) # stat time
+            # if positions is not None:
+            #     positions.append(day)  # day
+            #     positions.append(room_id)  # room id
+            #     positions.append(start_time)  # stat time
+
             reservation_index = hash(reservation)
             # fill time space slots for each hour of sections
             for i in range(section.duration - 1, -1, -1):
                 new_chromosome_slots[reservation_index + i].append(section)
-
             # insert in section table of chromosome
             new_chromosome_sections_table[section] = reservation_index
-
         new_chromosome.get_fitness()
+
         return new_chromosome
 
     def crossover(self, parent, number_of_crossover_points,
-        crossover_prob):
+                  crossover_prob):
         """
         Performs crossover operation using to
         chromosomes and returns pointer to offspring
@@ -215,10 +216,10 @@ class Schedule:
         return offspring
 
     def repair(self, section: Section, reservation_idx:
-    int, reservation: Reservation):
+               int, reservation: Reservation):
         # extract relevant prams and constant
         number_of_rooms = self._configuration.number_of_rooms
-        DAY_HOURS, DAYS_NUM = Constant.DAY_SLOTS, Constant.DAYS_NUM
+        # DAY_HOURS, DAYS_NUM = Constant.DAY_SLOTS, Constant.DAYS_NUM
         slots = self.slots
         dur = section.duration
 
@@ -235,8 +236,8 @@ class Schedule:
             day, start_time, room_id = self.random_selection(section)
             section.set_all(day, start_time, room_id, dur)
 
-            reservation = Reservation.get_reservation(number_of_rooms
-                                                      , day, start_time, room_id)
+            reservation = Reservation.get_reservation(number_of_rooms, day, start_time,
+                                                      room_id)
         # calculate the index of reservation
         reservation_idx = hash(reservation)
 
@@ -349,7 +350,7 @@ class Schedule:
         # print("fitness: ", score / len(criteria))
         # print("----")
         self._fitness = score / len(criteria)
-    
+
     def dominates(self, other):
         better = False
         for f, obj in enumerate(self.objectives):
@@ -360,9 +361,6 @@ class Schedule:
                 better = True
 
         return better
-
-
-
 
     @property
     def configuration(self):
@@ -399,5 +397,3 @@ class Schedule:
     @property
     def converted_objectives(self):
         return self._converted_objectives
-    
-    

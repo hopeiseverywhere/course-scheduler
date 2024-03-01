@@ -20,6 +20,14 @@ class Configuration:
         # parsed sections
         self._sections = []
 
+    def clear_data(self):
+        """Clears all previous data stored in the Configuration object."""
+        self._isEmpty = True
+        self._rooms = {}
+        self.rooms_by_capacity = {}
+        self._sections = []
+        Room.restart_id()
+
     def update_preference_range(self):
         """convert prof's preference from string to a range"""
         for section in self._sections:
@@ -43,34 +51,37 @@ class Configuration:
 
         # print(self.rooms_by_capacity)
 
-    def parse_file(self, file_name: str) -> None:
+    def parse_file(self, data: list[dict[str, any]]) -> None:
+        if self._isEmpty is False:
+            raise ValueError(
+                "Configuration is already initialized. Clear previous data before processing new data.")
+        Room.restart_id()
         self._rooms = {}
         self._sections = []
 
-        with codecs.open(file_name, "r", "utf-8") as f:
-            data = json.load(f)
+        for item in data:
+            if 'room' in item:
+                room_data = item['room']
+                room = Room(
+                    name=room_data['name'],
+                    number_of_seats=room_data['size']
+                )
+                self._rooms[room.id] = room
+            elif 'section' in item:
+                section_data = item['section']
+                section = Section(
+                    course=section_data['course'],
+                    professor=section_data['professor'],
+                    pref_time=section_data['pref_time'],
+                    requires_lab=section_data.get('lab', False),
+                    duration=section_data['duration'],
+                    students=section_data['students']
+                )
+                self._sections.append(section)
 
-            for item in data:
-                if 'room' in item:
-                    room_data = item['room']
-                    room = Room(
-                        name=room_data['name'],
-                        number_of_seats=room_data['size']
-                    )
-                    self._rooms[room.id] = room
-                elif 'section' in item:
-                    section_data = item['section']
-                    section = Section(
-                        course=section_data['course'],
-                        professor=section_data['professor'],
-                        pref_time=section_data['pref_time'],
-                        requires_lab=section_data['lab'],
-                        duration=section_data['duration'],
-                        students=section_data['students']
-                    )
-                    self._sections.append(section)
         self.update_preference_range()
         self.init_room_by_capacity()
+        self._isEmpty = False
 
     @property
     def number_of_sections(self):
@@ -103,3 +114,8 @@ class Configuration:
             int: The rounded down number to the nearest multiple of 5
         """
         return (number // 5) * 5
+
+    def __str__(self) -> str:
+        info = f"Number of Rooms: {self.number_of_rooms}\n"
+        info += f"Number of Sections: {self.number_of_sections}\n"
+        return info

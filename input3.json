@@ -8,8 +8,7 @@
             "pref_time": ["morning", "afternoon", "evening"],
             "lab": true,
             "duration": 10,
-            "students": 60,
-            "avoid": ["5002"]
+            "students": 60
         }
     },
     {

@@ -17,7 +17,7 @@ def main():
     start_time = int(round(time.time() * 1000))
     configuration = Configuration()
 
-    # file_name = "data.json"
+    file_name = "data.json"
     configuration.parse_file(data)
     # for prof in configuration._rooms.values():
     #     print(prof)

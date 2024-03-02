@@ -1,6 +1,6 @@
-ARG PYTHON_VERSION=3.10
+ARG PYTHON_VERSION=3.10.5
 
-FROM python:${PYTHON_VERSION}-slim
+FROM python:${PYTHON_VERSION}-slim as base
 
 RUN apt-get update && apt-get install -y \
     python3-pip \
@@ -12,10 +12,11 @@ RUN apt-get update && apt-get install -y \
 RUN mkdir -p /app
 WORKDIR /app
 
+COPY . .
+
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 
-COPY . .
+EXPOSE 8000
 
-
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80"]
+CMD uvicorn main:app --reload --port 8000 --host 0.0.0.0

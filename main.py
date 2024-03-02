@@ -9,6 +9,7 @@ from algorithm.GeneticAlgorithm import GeneticAlgorithm
 from model.Configuration import Configuration
 from Output import get_result
 
+
 app = FastAPI(debug=True)
 
 json_data_in_memory = None
@@ -172,3 +173,5 @@ async def clear():
     json_data_in_memory = None
 
     return JSONResponse({"message": "Data cleared successfully"})
+
+

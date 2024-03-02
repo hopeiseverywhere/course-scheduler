@@ -1,8 +1,6 @@
 import random
 from random import randrange
-
 from model import Constant
-from model import Configuration
 
 class Section:
     # ID counter used to assign IDs automatically

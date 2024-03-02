@@ -1,14 +1,22 @@
-# Use an official lightweight Python image.
-FROM python:3.10-slim
-LABEL "Project" "Basic Python API Rest"
-# Set the working directory to /app
+ARG PYTHON_VERSION=3.10
+
+FROM python:${PYTHON_VERSION}-slim
+
+RUN apt-get update && apt-get install -y \
+    python3-pip \
+    python3-venv \
+    python3-dev \
+    python3-setuptools \
+    python3-wheel
+
+RUN mkdir -p /app
 WORKDIR /app
 
 COPY requirements.txt .
-RUN python -m pip install -r requirements.txt
+RUN pip install -r requirements.txt
 
-WORKDIR /app
-COPY . /app
+COPY . .
 
-# Command to run the application using Uvicorn
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]
+EXPOSE 8080
+
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80"]

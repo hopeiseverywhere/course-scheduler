@@ -1,6 +1,3 @@
-import json
-import codecs
-
 from model import Constant
 from model.Room import Room
 from model.Section import Section

@@ -1,10 +1,7 @@
 import codecs
-import pathlib
 import os
-import sys
 import tempfile
 import time
-import traceback
 
 
 from model.Configuration import Configuration

@@ -2,12 +2,12 @@ from fastapi import FastAPI, HTTPException, Request
 from pydantic import BaseModel, validator
 import json
 from fastapi.responses import JSONResponse
-from model.Configuration import Configuration
-from algorithm.GeneticAlgorithm import GeneticAlgorithm
-from Output import get_result
 import asyncio
 from time import time
 from typing import Dict, List, Union
+from algorithm.GeneticAlgorithm import GeneticAlgorithm
+from model.Configuration import Configuration
+from Output import get_result
 
 app = FastAPI(debug=True)
 

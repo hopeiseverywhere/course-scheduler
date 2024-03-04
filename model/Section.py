@@ -22,7 +22,7 @@ class Section:
         # Returns number of seats (students) required in room
         self.number_of_students = students
         # Returns TRUE if class requires a lab
-        self.lab_required = requires_lab
+        self.is_lab = requires_lab
         # Returns duration of class in hours
         self.duration = duration
 
@@ -68,7 +68,7 @@ class Section:
                 f"Course: {self.course_name}, "
                 f"Professor: {self.prof_name}, "
                 f"Preference: {self.pref_time}, "
-                f"Requires Lab: {self.lab_required}, "
+                f"Lab Section: {self.is_lab}, "
                 f"Duration: {self.duration}, "
                 f"Start Day: {self.day}, "
                 f"Start Time: {self.start_time}, "

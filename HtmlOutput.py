@@ -42,7 +42,7 @@ class HtmlOutput:
         length_CRITERIAS = len(CRITERIAS)
 
         sb = [cc.course_name, "<br />", cc.prof_name, "<br />"]
-        if cc.lab_required:
+        if cc.is_lab:
             sb.append("Lab<br />")
 
         for i in range(length_CRITERIAS):

@@ -38,7 +38,7 @@ DAY_SLOTS = 36
 DAY_START_HOUR = 9
 DAY_START_MINUTES = 50
 
-MINUTES_TO_HOUR = 1/60
+MINUTES_TO_HOUR = 1 / 60
 HOUR_TO_MINUTES = 60
 
 # morning = 9:50 - 12:30 -> duration 2:40 -> 160 minutes -> 8 slots
@@ -49,3 +49,7 @@ time_ranges = {
     "afternoon": [8, 23],
     "evening": [23, 36]
 }
+
+# Dictionary to relate labs to their main classes. Usage will check if course is a lab before accessing dictionary,
+# which is why key = lab, val = main course
+lab_main_courses = {"5003": "5001", "5005": "5004", "5009": "5008", "5011": "5010"}

@@ -49,3 +49,24 @@ class Criteria:
     def is_prof_satisfied(section: Section, start_time: int, end_time: int):
         return (start_time >= section.pref_time_range[0] and
                 end_time <= section.pref_time_range[1])
+
+    # 4. Lab timings satisfied
+    @staticmethod
+    def is_lab_satisfied(section: Section, section_table):
+        # Return true if not a lab - these checks won't be necessary for main courses
+        if not section.is_lab:
+            return True
+
+        # Get the corresponding main course for the lab
+        main_course_num = Constant.lab_main_courses(section.course_name)
+
+        # Check that corresponding course (number + professor pair) starts at roughly same time on different day
+        for compare_section in section_table:
+            # Only check times if correct section found
+            if compare_section.course_name == main_course_num and section.prof_name == compare_section.prof_name:
+                difference_start_times = section.start_time - compare_section.start_time
+                max_diff = 3
+                return section.day != compare_section.day and -max_diff <= difference_start_times <= max_diff
+
+        # If all sections checked for a lab and no corresponding main course found, return false
+        return False

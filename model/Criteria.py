@@ -7,7 +7,7 @@ from model.Section import Section
 class Criteria:
     # 4 criteria for calculating fitness
     # weights = [0, 0.5, 0.5, 0, 0]
-    weights = [0.25, 0.25, 0.5, 0.5]
+    weights = [0.25, 0.25, 0.5, 0.5, 0.5]
 
     # 0. check for room overlapping of classes
     @staticmethod
@@ -58,13 +58,12 @@ class Criteria:
             return True
 
         # Get the corresponding main course for the lab
-        main_course_num = Constant.lab_main_courses(section.course_name)
-
+        main_course_num = Constant.lab_main_courses[section.course_name]
         # Check that corresponding course (number + professor pair) starts at roughly same time on different day
         for compare_section in section_table:
             # Only check times if correct section found
             if compare_section.course_name == main_course_num and section.prof_name == compare_section.prof_name:
-                difference_start_times = section.start_time - compare_section.start_time
+                difference_start_times = int(section.start_time[0]) - int(compare_section.start_time[0])
                 max_diff = 3
                 return section.day != compare_section.day and -max_diff <= difference_start_times <= max_diff
 

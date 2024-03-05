@@ -336,6 +336,10 @@ class Schedule:
             lab_timing = Criteria.is_lab_satisfied(section, self._sections_table)
             criteria[ci + 4] = lab_timing
 
+            # 6. Check concurrent courses
+            concurrent_courses_available = Criteria.concurrent_course_option_available(section, self._sections_table)
+            criteria[ci + 5] = concurrent_courses_available
+
             # print("ci", ci)
             for i in range(len(self._objectives)):
                 if criteria[ci + i]:

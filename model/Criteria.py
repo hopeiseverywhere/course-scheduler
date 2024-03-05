@@ -7,7 +7,7 @@ from model.Section import Section
 class Criteria:
     # 4 criteria for calculating fitness
     # weights = [0, 0.5, 0.5, 0, 0]
-    weights = [0.25, 0.25, 0.5, 0.5, 0.5]
+    weights = [0.25, 0.25, 0.5, 0.5, 0.5, 0.25]
 
     # 0. check for room overlapping of classes
     @staticmethod
@@ -67,7 +67,43 @@ class Criteria:
                 main_course_start_time = int(compare_section.start_time[:2])
                 difference_start_times = lab_start_time - main_course_start_time
                 max_diff = 1
+
+                # Return true if on different day and within max difference of starting time, false otherwise
                 return lab_section.day != compare_section.day and -max_diff <= difference_start_times <= max_diff
 
         # If all sections checked for a lab and no corresponding main course found, return false
         return False
+
+    # 5. Concurrent courses allow for one non-overlapped option
+    @staticmethod
+    def concurrent_course_option_available(section, section_table):
+        # If course is not a concurrent course, return true
+        if not Constant.concurrent_courses.__contains__(section.course_name):
+            return True
+
+        # Partner course number from table
+        partner_course = Constant.concurrent_courses.get(section.course_name)
+
+        # Compare with each course and count the number of its partner course that do not conflict
+        non_conflicting_partners = 0
+        for compare_section in section_table:
+            if compare_section.course_name == partner_course:
+                # If partner course and on different day, cannot be overlapped
+                if section.day != compare_section.day:
+                    non_conflicting_partners += 1
+                    continue
+
+                # If partner course and on same day, check if overlapped. Do not increment count if overlapped,
+                # otherwise increment count
+                curr_start = int(section.start_time[:2])
+                curr_end = int(compare_section.end_time[:2])
+                comp_start = int(section.start_time[:2])
+                comp_end = int(compare_section.end_time[:2])
+                if comp_start <= curr_start <= comp_end or comp_start <= curr_end <= comp_end:
+                    continue
+                else:
+                    non_conflicting_partners += 1
+                    continue
+
+            # If at least one partner course is not overlapped, return true. Else return false
+            return non_conflicting_partners >= 1

@@ -8,13 +8,19 @@ class HtmlOutput:
     ROOM_ROW_NUMBER = Constant.DAY_SLOTS + 1
     COLOR1 = "#319378"
     COLOR2 = "#CE0000"
-    CRITERIAS = ('RO', 'SE', 'PO', 'PS', 'L')
-    OK_DESCR = ("Current room has no overlapping", "Current room has enough seats",
-                       "Current room with enough computers if they are required",
-                       "Professors have no overlapping classes", "Student groups has no overlapping classes")
-    FAIL_DESCR = ("Current room has overlapping", "Current room has not enough seats",
-                       "Current room with not enough computers if they are required",
-                       "Professors have overlapping classes", "Student groups has overlapping classes")
+    CRITERIAS = ('RO', 'SE', 'PO', 'PS', 'L', 'CC')
+    OK_DESCR = ("Current room has no overlapping",
+                "Current room has enough seats",
+                "Professor not overlapped",
+                "Professor time preferences met",
+                "Lab timing requirements met",
+                "Concurrent course requirements met")
+    FAIL_DESCR = ("Current room has overlapping",
+                  "Current room has not enough seats",
+                  "Professor is overlapped",
+                  "Professors time preference not satisfied",
+                  "Lab does not have proper timing",
+                  "Course cannot be taken with a concurrent required course")
     # PERIODS = (
     #     "", "9 - 10", "10 - 11", "11 - 12", "12 - 13", "13 - 14", "14 - 15", "15 - 16", "16 - 17", "17 - 18", "18 - 19",
     #     "19 - 20", "20 - 21")

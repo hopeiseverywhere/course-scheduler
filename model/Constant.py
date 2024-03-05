@@ -52,4 +52,17 @@ time_ranges = {
 
 # Dictionary to relate labs to their main classes. Usage will check if course is a lab before accessing dictionary,
 # which is why key = lab, val = main course
-lab_main_courses = {"5003": "5001", "5005": "5004", "5009": "5008", "5011": "5010"}
+lab_main_courses = {
+    "5003": "5001",
+    "5005": "5004",
+    "5009": "5008",
+    "5011": "5010"
+}
+
+# Courses which are paired together because they are typically taken together. Usage is ensuring at least one of each
+# does not conflict with the other
+concurrent_courses = {
+    "5001": "5002", "5002": "5001",
+    "5004": "5008", "5008": "5004",
+    "5010": "5800", "5800": "5010"
+}

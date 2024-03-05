@@ -332,6 +332,10 @@ class Schedule:
 
             criteria[ci + 3] = pfo
 
+            # 5. Check lab conditions met
+            lab_timing = Criteria.is_lab_satisfied(section, self._sections_table)
+            criteria[ci + 4] = lab_timing
+
             # print("ci", ci)
             for i in range(len(self._objectives)):
                 if criteria[ci + i]:

@@ -8,7 +8,7 @@ class HtmlOutput:
     ROOM_ROW_NUMBER = Constant.DAY_SLOTS + 1
     COLOR1 = "#319378"
     COLOR2 = "#CE0000"
-    CRITERIAS = ('RO', 'SE', 'PO', 'PS')
+    CRITERIAS = ('RO', 'SE', 'PO', 'PS', 'L')
     OK_DESCR = ("Current room has no overlapping", "Current room has enough seats",
                        "Current room with enough computers if they are required",
                        "Professors have no overlapping classes", "Student groups has no overlapping classes")

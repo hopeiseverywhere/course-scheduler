@@ -1,0 +1,189 @@
+[
+    {
+        "Section Id": 0,
+        "Course": "5001",
+        "Prof": "Mullen",
+        "Start Day": 3,
+        "Start Time": "10:50",
+        "End Time": "14:10",
+        "Room": "402",
+        "Dur": 10,
+        "Relative Start": 3
+    },
+    {
+        "Section Id": 1,
+        "Course": "5003",
+        "Prof": "Mullen",
+        "Start Day": 0,
+        "Start Time": "11:30",
+        "End Time": "13:10",
+        "Room": "402",
+        "Dur": 5,
+        "Relative Start": 5
+    },
+    {
+        "Section Id": 2,
+        "Course": "5004",
+        "Prof": "Bonaci",
+        "Start Day": 3,
+        "Start Time": "12:50",
+        "End Time": "16:10",
+        "Room": "210",
+        "Dur": 10,
+        "Relative Start": 9
+    },
+    {
+        "Section Id": 3,
+        "Course": "5005",
+        "Prof": "Bonaci",
+        "Start Day": 1,
+        "Start Time": "13:50",
+        "End Time": "15:30",
+        "Room": "402",
+        "Dur": 5,
+        "Relative Start": 12
+    },
+    {
+        "Section Id": 4,
+        "Course": "5008",
+        "Prof": "Singh",
+        "Start Day": 2,
+        "Start Time": "12:30",
+        "End Time": "15:50",
+        "Room": "402",
+        "Dur": 10,
+        "Relative Start": 8
+    },
+    {
+        "Section Id": 5,
+        "Course": "5009",
+        "Prof": "Singh",
+        "Start Day": 0,
+        "Start Time": "12:50",
+        "End Time": "14:30",
+        "Room": "220",
+        "Dur": 5,
+        "Relative Start": 9
+    },
+    {
+        "Section Id": 6,
+        "Course": "5002",
+        "Prof": "Veliz",
+        "Start Day": 4,
+        "Start Time": "13:10",
+        "End Time": "14:50",
+        "Room": "210",
+        "Dur": 5,
+        "Relative Start": 10
+    },
+    {
+        "Section Id": 7,
+        "Course": "5001",
+        "Prof": "Geeng",
+        "Start Day": 3,
+        "Start Time": "18:10",
+        "End Time": "21:30",
+        "Room": "216",
+        "Dur": 10,
+        "Relative Start": 25
+    },
+    {
+        "Section Id": 8,
+        "Course": "5003",
+        "Prof": "Geeng",
+        "Start Day": 1,
+        "Start Time": "13:10",
+        "End Time": "14:50",
+        "Room": "306",
+        "Dur": 5,
+        "Relative Start": 10
+    },
+    {
+        "Section Id": 9,
+        "Course": "5004",
+        "Prof": "Cobbe",
+        "Start Day": 0,
+        "Start Time": "15:50",
+        "End Time": "19:10",
+        "Room": "416",
+        "Dur": 10,
+        "Relative Start": 18
+    },
+    {
+        "Section Id": 10,
+        "Course": "5005",
+        "Prof": "Cobbe",
+        "Start Day": 4,
+        "Start Time": "16:30",
+        "End Time": "18:10",
+        "Room": "216",
+        "Dur": 5,
+        "Relative Start": 20
+    },
+    {
+        "Section Id": 11,
+        "Course": "5001",
+        "Prof": "Mishra",
+        "Start Day": 1,
+        "Start Time": "15:50",
+        "End Time": "19:10",
+        "Room": "210",
+        "Dur": 10,
+        "Relative Start": 18
+    },
+    {
+        "Section Id": 12,
+        "Course": "5003",
+        "Prof": "Mishra",
+        "Start Day": 3,
+        "Start Time": "16:10",
+        "End Time": "17:50",
+        "Room": "220",
+        "Dur": 5,
+        "Relative Start": 19
+    },
+    {
+        "Section Id": 13,
+        "Course": "5002",
+        "Prof": "Mishra",
+        "Start Day": 4,
+        "Start Time": "11:50",
+        "End Time": "15:10",
+        "Room": "216",
+        "Dur": 10,
+        "Relative Start": 6
+    },
+    {
+        "Section Id": 14,
+        "Course": "5008",
+        "Prof": "Hussein",
+        "Start Day": 1,
+        "Start Time": "11:30",
+        "End Time": "14:50",
+        "Room": "216",
+        "Dur": 10,
+        "Relative Start": 5
+    },
+    {
+        "Section Id": 15,
+        "Course": "5009",
+        "Prof": "Hussein",
+        "Start Day": 0,
+        "Start Time": "17:50",
+        "End Time": "19:30",
+        "Room": "402",
+        "Dur": 5,
+        "Relative Start": 24
+    },
+    {
+        "Section Id": 16,
+        "Course": "5002",
+        "Prof": "Shafer",
+        "Start Day": 4,
+        "Start Time": "13:50",
+        "End Time": "17:10",
+        "Room": "402",
+        "Dur": 10,
+        "Relative Start": 12
+    }
+]

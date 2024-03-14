@@ -88,7 +88,17 @@ class Criteria:
     #     return False
 
     @staticmethod
-    def is_lab_satisfied(lab_section: Section, main_section: Section):
+    def is_lab_satisfied(lab_section: Section, main_section: Section) -> bool:
+        """Return true if lab section's timing is satisfied,
+        false other wise
+
+        Args:
+            lab_section (Section): lab section
+            main_section (Section): lab section's corresponding main section
+
+        Returns:
+            bool: 
+        """
         # Return True if not a lab -
         # these checks won't be necessary for main courses
         if not lab_section.is_lab or main_section is None:
@@ -144,7 +154,16 @@ class Criteria:
 
     @staticmethod
     def is_conflict(section: Section,
-        conflicts_dict: Dict[Section, List[Section]]):
+        conflicts_dict: Dict[Section, List[Section]]) -> bool:
+        """Check if current section has a concurrent conflict section
+
+        Args:
+            section (Section): current section
+            conflicts_dict (Dict[Section, List[Section]]): a dictionary in configuration that stores all concurrent conflict sections data
+
+        Returns:
+            bool: if yes, return true, otherwise return false
+        """
         # If the course don't have a conflict course, return false
         if section not in conflicts_dict.keys():
             return False
@@ -173,7 +192,7 @@ class Criteria:
         return non_conflicting_partners < len(conflict_sections)
 
     @staticmethod
-    def is_time_overlap(section1: Section, section2: Section):
+    def is_time_overlap(section1: Section, section2: Section) -> bool:
         """
         If two sections time overlaps, return true, else return false
         """

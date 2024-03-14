@@ -149,8 +149,7 @@ class Configuration:
 
     def print_lab_section_dict(self):
         print("{:<20} {}".format("Main section", "Day time"))
-        for lab in self.lab_main_course_sec.keys():
-            main_course: Section = self.lab_main_course_sec[lab]
+        for lab, main_course in self.lab_main_course_sec.items():
             print("{:<20} {} {}".format(main_course.course_name,
                                         main_course.day,
                                         main_course.start_time))

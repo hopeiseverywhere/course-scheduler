@@ -16,7 +16,7 @@ Course Schedular
 app = FastAPI(title="Course Schedular API",
               description=description,
               version="0.0.2",
-    debug=True)
+              debug=True)
 
 json_data_in_memory = None
 configuration = None
@@ -32,7 +32,7 @@ class Section(BaseModel):
         professor (str): The professor teaching the section.
         pref_time (List[str]): The preferred times for the section, ["morning", "afternoon", "evening"].
         lab (bool | None): Indicates whether the section requires a lab FOR NOW.
-        duration (int): The duration of the section in RELATIVE TIME for now.
+        duration (int): The duration of the section in minutes
         students (int): The number of students enrolled in the section.
 
     Methods:
@@ -137,7 +137,7 @@ async def run_process(id: float = 0.93):
 
         alg = GeneticAlgorithm(configuration)
         # print(configuration)
-        timeout = 60
+        timeout = 500
         try:
             start_time = time()  # Capture start time
             result = await asyncio.wait_for(
@@ -151,6 +151,11 @@ async def run_process(id: float = 0.93):
         except asyncio.TimeoutError:
             raise HTTPException(status_code=500,
                                 detail="Timeout exceeded while running the algorithm")
+        except asyncio.CancelledError:
+            # Handle cancellation of the request
+            alg.cleanup()  # Clean up resources
+            raise HTTPException(
+                status_code=499, detail="Request canceled by client")
 
         solution = get_result(alg.result)
         alg.cleanup()

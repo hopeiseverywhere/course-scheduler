@@ -19,7 +19,7 @@ def local_app():
     configuration.parse_file(data)
 
     alg = GeneticAlgorithm(configuration)
-    alg.run(9999, 0.989)
+    alg.run(9999, 0.999)
 
     get_result(alg.result)
 

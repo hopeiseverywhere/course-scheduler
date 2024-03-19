@@ -1,8 +1,10 @@
 import Section
+from typing import List
 
 
-# Stores data about professor
 class Professor:
+    """A professor class, not using this right now
+    """
     # Initializes professor data
     def __init__(self, prof_id: int, name: str, preference: list[str]):
         self.prof_id = prof_id

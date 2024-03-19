@@ -22,7 +22,7 @@ class Configuration:
         self.rooms_by_capacity = {}
         # parsed sections
         self._sections = []
-        # lab section : main course section
+        # key lab section : value main course section
         self.lab_main_course_sec: Dict[Section: Section] = {}
         # lab section id : main section id
         self.lab_main_course_id: Dict[int: int] = {}
@@ -65,10 +65,11 @@ class Configuration:
 
         # print(self.rooms_by_capacity)
 
-    def parse_file(self, data: list[dict[str, any]]) -> None:
+    def parse_file(self, data: list[dict[str, Any]]) -> None:
         """
-        parse file to configuration
+        Parses file data to populate the configuration.
         """
+
         if self._isEmpty is False:
             raise ValueError(
                 "Configuration is already initialized. "
@@ -217,9 +218,7 @@ class Configuration:
 
     def get_room_by_id(self, room_id: int) -> Room | None:
         """
-        Return room with specific id, return None otherwise
-        :param room_id:
-        :return: room object of given id
+        Return room object with a specific id, return None otherwise
         """
         if room_id in self._rooms:
             return self._rooms.get(room_id)

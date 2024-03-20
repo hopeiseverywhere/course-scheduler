@@ -8,8 +8,12 @@ from model.Reservation import Reservation
 
 class Criteria:
     # 4 criteria for calculating fitness
-    # weights = [0, 0.5, 0.5, 0, 0]
-    weights = [0.0, 0.25, 0.5, 0.5, 0.25, 0.5]
+    # Weights allow for partial credit when a criteria fails.
+    # 1.0 -> Does not matter if criteria fails. 0.0 -> criteria must be satisfied (hard constraint).
+    # Fractional weights are used to give "credit" for criteria that fail. To be used for preferences
+    # Usage: set weights so that minimum satisfaction in (99.0, 100], and partial credit can push above min threshold
+    # Indexes: [room overlapped, enough seats, professor overlap, professor time, lab pair timing, partner course]
+    weights = [1.0, 0.0, 0.0, 0.0, 0.0, 0.0]
     criteria_size = len(weights)
 
     # 0. check for room overlapping of classes
@@ -57,36 +61,6 @@ class Criteria:
         return (start_time >= section.pref_time_range[0] and
                 end_time <= section.pref_time_range[1])
 
-    # 4. Lab timings satisfied
-    # @staticmethod
-    # def is_lab_satisfied(lab_section: Section, section_table):
-    #     # Return True if not a lab -
-    #     # these checks won't be necessary for main courses
-    #     if not lab_section.is_lab:
-    #         return True
-    #
-    #     # Get the corresponding main course for the lab
-    #     main_course_num = Constant.lab_main_courses[lab_section.course_name]
-    #     # Check that corresponding course
-    #     # (number + professor pair) starts at roughly same time on different day
-    #     for compare_section in section_table:
-    #         # Only check times if correct section found
-    #         if (compare_section.course_name == main_course_num
-    #             and lab_section.prof_name == compare_section.prof_name):
-    #             lab_start_time = int(lab_section.start_time[:2])
-    #             main_course_start_time = int(compare_section.start_time[:2])
-    #             difference_start_times = lab_start_time - main_course_start_time
-    #             max_diff = 2
-    #
-    #             # Return True if on different day and within
-    #             # max difference of starting time, False otherwise
-    #             return (lab_section.day != compare_section.day
-    #                     and -max_diff <= difference_start_times <= max_diff)
-    #
-    #     # If all sections checked for a lab
-    #     # and no corresponding main course found, return False
-    #     return False
-
     @staticmethod
     def is_lab_satisfied(lab_section: Section, main_section: Section) -> bool:
         """Return true if lab section's timing is satisfied,
@@ -113,44 +87,6 @@ class Criteria:
         # max difference of starting time, False otherwise
         return (day_diff > 1
                 and difference_start_times <= max_diff)
-
-    # 5. Concurrent courses allow for one non-overlapped option
-    # @staticmethod
-    # def concurrent_course_option_available1(section, section_table):
-    #     # If course is not a concurrent course, return True
-    #     if not Constant.concurrent_courses.__contains__(section.course_name):
-    #         return True
-    #
-    #     # Partner course number from table
-    #     partner_course = Constant.concurrent_courses.get(section.course_name)
-    #
-    #     # Compare with each course and count
-    #     # the number of its partner course that do not conflict
-    #     non_conflicting_partners = 0
-    #     for compare_section in section_table:
-    #         if compare_section.course_name == partner_course:
-    #             # If partner course and on different day, cannot be overlapped
-    #             if section.day != compare_section.day:
-    #                 non_conflicting_partners += 1
-    #                 continue
-    #
-    #             # If partner course and on same day,
-    #             # check if overlapped. Do not increment count if overlapped,
-    #             # otherwise increment count
-    #             curr_start = section.relative_start
-    #             curr_end = compare_section.relative_start
-    #             comp_start = section.relative_start
-    #             comp_end = compare_section.relative_start
-    #             if (comp_start <= curr_start <= comp_end
-    #                 or comp_start <= curr_end <= comp_end):
-    #                 continue
-    #             else:
-    #                 non_conflicting_partners += 1
-    #                 continue
-    #
-    #         # If at least one partner course is not overlapped, return True.
-    #         # Else return False
-    #         return non_conflicting_partners >= 1
 
     @staticmethod
     def is_conflict(section: Section,

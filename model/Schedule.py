@@ -467,10 +467,10 @@ class Schedule:
             criteria[ci + 5] = not conflict
 
             for i in range(len(self._objectives)):
-                if criteria[ci + i]:
+                if criteria[ci + i]:  # Checking if that criteria was fulfilled
                     score += 1
                 else:
-                    score += Criteria.weights[i]
+                    score += Criteria.weights[i]  # Adding partial credit for that weight if unfulfilled
                     self._objectives[i] += 1 if Criteria.weights[i] > 0 else 2
             ci += self.criteria_size
 

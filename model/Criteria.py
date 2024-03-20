@@ -12,6 +12,7 @@ class Criteria:
     # 1.0 -> Does not matter if criteria fails. 0.0 -> criteria must be satisfied (hard constraint).
     # Fractional weights are used to give "credit" for criteria that fail. To be used for preferences
     # Usage: set weights so that minimum satisfaction in (99.0, 100], and partial credit can push above min threshold
+    # TODO Note about above: currently can only get 0.9901960784313726 at best.
     # Indexes: [room overlapped, enough seats, professor overlap, professor time, lab pair timing, partner course]
     weights = [1.0, 0.0, 0.0, 0.0, 0.0, 0.0]
     criteria_size = len(weights)

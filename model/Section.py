@@ -8,11 +8,12 @@ class Section:
     _next_section_id = 0
 
     # Initializes class object
-    def __init__(self, course: str, professor: str, pref_time: list[str], pref_days: list[int], is_lab: bool, duration: int, students: int):
+    def __init__(self, course_num: str, course_name: str, professor: str, pref_time: list[str], pref_days: list[int], is_lab: bool, duration: int, students: int):
         self.section_id = Section._next_section_id
         Section._next_section_id += 1
-        # Course name
-        self.course_name = course
+        # Course number
+        self.course_num = course_num
+        self.course_name = course_name
         # Return pointer to professor who teaches
         self.prof_name = professor
         # Professor's preference
@@ -66,7 +67,7 @@ class Section:
 
     def __str__(self):
         return (f"Section ID: {self.section_id}, "
-                f"Course: {self.course_name}, "
+                f"Course: {self.course_num}, "
                 f"Professor: {self.prof_name}, "
                 f"Preference: {self.pref_time}, "
                 f"Lab Section: {self.is_lab}, "
@@ -105,7 +106,7 @@ class Section:
             self.relative_start + self.duration)
 
     def to_str(self):
-        return self.course_name + " " + self.prof_name
+        return self.course_num + " " + self.prof_name
 
     def is_lab_section(self):
         """
@@ -147,7 +148,7 @@ class Section:
     def section_to_dict(section):
         return {
             "Section Id": section.section_id,
-            "Course": section.course_name,
+            "Course": section.course_num,
             "Prof": section.prof_name,
             "Start Day": section.day,
             "Start Time": section.start_time,

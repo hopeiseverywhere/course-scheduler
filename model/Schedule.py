@@ -88,19 +88,19 @@ class Schedule:
         if section.is_lab:
             main_course = self._configuration.get_main_section(
                 section)
-            while abs(day - main_course.day) <= 1:
-                print("a here")
+            while abs(day == main_course.day):
+                print("a here: ", section.course_num, section.prof_name, day, main_course.day)
 
                 day = random.choice(section.pref_days)
-                if abs(day - main_course.day > 1):
+                if abs(day - main_course.day >= 1):
                     return day
-                if abs(day - main_course.day) <= 1:
+                if abs(day - main_course.day) < 1:
                     self.configuration.clean_room_slot(main_course)
                     conflict_day = random.choice(main_course.pref_days)
                     main_course.set_day(conflict_day)
                     self.configuration.set_room_slot(
                         main_course.room_id, conflict_day, main_course.relative_start, main_course.duration)
-                    if abs(day - main_course.day > 1):
+                    if abs(day - main_course.day >= 1):
                         return day
 
         return day
@@ -109,13 +109,22 @@ class Schedule:
         """
         Make a random selection of a relative start time
         """
-        # actively assign those who is ok with evening sections evening first
+        
         pref_range = section.pref_time_range
         duration = section.duration
+        
         if duration > pref_range[1]:
-            start_time = randrange(pref_range[0], pref_range[1] + 3)
+            # for professor only prefer morning time slot
+            seed = randrange(2, 4)
+            # start_time = randrange(pref_range[0], pref_range[1] + seed)
+            start_time = randrange(pref_range[0], pref_range[0] + seed)
         else:
             start_time = randrange(pref_range[0], pref_range[1] + 1 - duration)
+        
+        # actively assign those who is ok with evening sections evening first
+        seed = randrange(2)
+        if "evening" in section.pref_time and seed == 1:
+            start_time = pref_range[1] - duration
 
         return start_time
 
@@ -604,7 +613,7 @@ class Schedule:
         
         self.final_criteria = self.criteria.reshape(-1, size).tolist()
         # print(self.final_criteria)
-        num = 0
-        for lis in self.final_criteria:
-            print(num, ":", lis)
-            num += 1
+        # num = 0
+        # for lis in self.final_criteria:
+        #     print(num, ":", lis)
+        #     num += 1

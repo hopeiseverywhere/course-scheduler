@@ -99,7 +99,8 @@ class Configuration:
             elif 'section' in item:
                 section_data = item['section']
                 section = Section(
-                    course=section_data['course'],
+                    course_num=section_data['course'],
+                    course_name="",
                     professor=section_data['professor'],
                     pref_time=section_data['pref_time'],
                     pref_days=section_data['pref_day'],
@@ -134,7 +135,7 @@ class Configuration:
         # load from constant
         for key in Constant.lab_main_courses.keys():
             for lab in self.sections:
-                if lab.course_name == key and lab.section_id not in lab_set:
+                if lab.course_num == key and lab.section_id not in lab_set:
                     lab_set.add(lab)
                     self.lab_main_course_sec[lab] = None
                     self.lab_main_course_id[lab.section_id] = None
@@ -144,7 +145,7 @@ class Configuration:
             for section in self.sections:
                 if (section.prof_name == lab.prof_name and
                     Constant.lab_main_courses[
-                        lab.course_name] == section.course_name and
+                        lab.course_num] == section.course_num and
                     section.section_id not in main_set):
                     main_set.add(section)
                     self.lab_main_course_sec[lab] = section
@@ -163,7 +164,7 @@ class Configuration:
     def print_lab_section_dict(self):
         print("{:<20} {}".format("Main section", "Day time"))
         for lab, main_course in self.lab_main_course_sec.items():
-            print("{:<20} {} {}".format(main_course.course_name,
+            print("{:<20} {} {}".format(main_course.course_num,
                                         main_course.day,
                                         main_course.start_time))
 
@@ -172,13 +173,13 @@ class Configuration:
         Map a course to its conflict courses
         """
         for section in self.sections:
-            if section.course_name in Constant.concurrent_courses.keys():
+            if section.course_num in Constant.concurrent_courses.keys():
                 self.conflicts_dict[section] = []
 
         for section in self.conflicts_dict.keys():
             for other_section in self.sections:
-                if other_section.course_name == Constant.concurrent_courses[
-                    section.course_name]:
+                if other_section.course_num == Constant.concurrent_courses[
+                    section.course_num]:
                     self.conflicts_dict[section].append(other_section)
 
         # test out put ------------------

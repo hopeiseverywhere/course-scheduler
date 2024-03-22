@@ -75,22 +75,10 @@ class Schedule:
                 self._converted_objectives = other.converted_objectives[:]
             return self
 
-    def random_selection(self, section: Section):
+    def rand_day(self, section: Section) -> int:
         """
-        Make random selection of (day, time, room_id) from a give section
-        :param section:
-        :return: tuple (day, start_time, room_id)
+        Make a random selection of (day)
         """
-
-        dur = section.duration
-        pref_range = section.pref_time_range
-        number_of_students = section.number_of_students
-        number_of_students = Configuration.round_down_to_nearest_five(
-            number_of_students)
-
-        room_id = random.choice(
-            self._configuration.rooms_by_capacity[number_of_students])
-        start_time = randrange(pref_range[1] - dur)
         # if the current section is a lab
         # random select day based on its main course
         day = randrange(Schedule.DAY_NUM)
@@ -105,11 +93,53 @@ class Schedule:
             for conflict in self.configuration.conflicts_dict[section]:
                 while day == conflict.day:
                     day = randrange(Schedule.DAY_NUM)
+        return day
 
-        # print(day, start_time, room_id)
+    def rand_time(self, section: Section) -> int:
+        """
+        Make a random selection of a relative start time
+        """
+        pref_range = section.pref_time_range
+        dur = section.duration
+        # actively assign those who is ok with evening sections evening first
+        if (pref_range[1] == Constant.time_ranges["evening"][1]):
+            start_time = randrange(pref_range[0], pref_range[1] + 1 - dur)
+        else:
+            if (dur > pref_range[1]):
+                # start_time = randrange(pref_range[0],
+                #                        pref_range[1] + (dur / 2) - dur)
+                start_time = randrange(pref_range[0], pref_range[1] + 3)
+            else:
+                start_time = randrange(pref_range[0], pref_range[1] + 1 - dur)
+        return start_time
+
+    def random_selection(self, section: Section):
+        """
+        Make random selection of (day, time, room_id) from a give section
+        :param section:
+        :return: tuple (day, start_time, room_id)
+        """
+        self.configuration.clean_room_slot(section)
+        dur = section.duration
+
+        number_of_students = section.number_of_students
+        number_of_students = Configuration.round_down_to_nearest_five(
+            number_of_students)
+
+        day = self.rand_day(section)
+        start_time = self.rand_time(section)
+        # select a room with enough size and empty
+        room_id = random.choice(
+            self._configuration.rooms_by_capacity[number_of_students])
+        while self.configuration.is_room_occupied(room_id, day, start_time):
+            # print("here")
+            room_id = random.choice(
+                self._configuration.rooms_by_capacity[number_of_students])
+            day = self.rand_day(section)
+            start_time = self.rand_time(section)
+
+        self.configuration.set_room_slot(room_id, day, start_time, dur)
         return day, start_time, room_id
-
-
 
     def make_new_from_prototype(self, positions=None):
         """
@@ -517,8 +547,10 @@ class Schedule:
 
     @property
     def objectives(self):
+        # print(self._objectives)
         return self._objectives
 
     @property
     def converted_objectives(self):
+        # print(self._converted_objectives)
         return self._converted_objectives

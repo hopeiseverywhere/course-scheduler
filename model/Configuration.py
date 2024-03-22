@@ -20,6 +20,10 @@ class Configuration:
         # key: capacity, range from 5 to 100 inclusive, increment by 5
         # value: a list of rooms that can >= key
         self.rooms_by_capacity = {}
+
+        # key : room id
+        # values = [6 days]:[all time slots]
+        self.room_by_time_slot: Dict[int, Dict[int, List[bool]]] = {}
         # parsed sections
         self._sections = []
         # key lab section : value main course section
@@ -50,7 +54,7 @@ class Configuration:
             time_range.append(start)
             time_range.append(end)
             section.pref_time_range = time_range
-            # print(section.Preference_range)
+            # print(section.pref_time_range)
 
     def init_room_by_capacity(self):
         """
@@ -87,6 +91,11 @@ class Configuration:
                     number_of_seats=room_data['size']
                 )
                 self._rooms[room.id] = room
+                # update room by time slot
+                self.room_by_time_slot[room.id] = {}
+                for i in range(Constant.DAYS_NUM + 1):
+                    self.room_by_time_slot[room.id][i] = [
+                        False] * Constant.DAY_SLOTS
             elif 'section' in item:
                 section_data = item['section']
                 section = Section(
@@ -98,6 +107,7 @@ class Configuration:
                         section_data['duration'] / Constant.TIME_SEGMENT),
                     students=section_data['students']
                 )
+                # print(section_data['duration'] / Constant.TIME_SEGMENT)
                 self._sections.append(section)
                 self._sections_by_id[section.section_id] = section
 
@@ -113,6 +123,7 @@ class Configuration:
         self.init_lab_section_dict()
         self.init_non_concurrent_dict()
         self._isEmpty = False
+        # print(self.room_by_time_slot[0])
 
     def init_lab_section_dict(self):
         """lab section : main section
@@ -231,6 +242,55 @@ class Configuration:
         if section_id in self._sections_by_id:
             return self._sections_by_id.get(section_id)
         return None
+
+    def is_room_occupied(self, room_id: int, day: int, relative_time: int) -> bool:
+        """Given room id and a relative start time, check whether the room is occupied
+
+        Args:
+            room_id (int): _description_
+            relative_time (int): _description_
+
+        Returns:
+            bool: _description_
+        """
+        
+        if self.room_by_time_slot[room_id][day][relative_time + 1]:
+            return True
+        return False
+
+    def set_room_slot(self, room_id: int, day: int, relative_start: int, dur: int):
+        """If a section randomly select day, time and room, make that room occupied
+
+        Args:
+            room_id (int): _description_
+            day (int): _description_
+            relative_start (int): _description_
+            dur (int): _description_
+        """
+        for i in range(relative_start, relative_start + dur):
+            self.room_by_time_slot[room_id][day][i] = True
+        # self.print_room_slot("set room",room_id, day)
+    
+    def clean_room_slot(self, section: Section):
+        """Clean the previous selection
+
+        Args:
+            section (Section): _description_
+        """
+        
+        if section.room_id is not None:
+            
+            day = section.day
+            room_id = section.room_id
+            dur = section.duration
+            relative_start = section.relative_start
+            
+            for i in range(relative_start, relative_start + dur):
+                self.room_by_time_slot[room_id][day][i] = False
+            # self.print_room_slot("clean room",room_id, day)
+
+    def print_room_slot(self, msg: str,room_id: int, day: int):
+        print(msg, room_id, self.room_by_time_slot[room_id][day])
 
     @staticmethod
     def round_down_to_nearest_five(number: int) -> int:

@@ -60,7 +60,7 @@ class HtmlOutput:
     #     "21:10 - 21:20", "21:20 - 21:30", "21:30 - 21:40", "21:40 - 21:50"
     # )
 
-    WEEK_DAYS = ("MON", "TUE", "WED", "THU", "FRI")
+    WEEK_DAYS = ("MON", "TUE", "WED", "THU", "FRI", "SAT")
 
     @staticmethod
     def getCourseClass(cc, criterias, ci):

@@ -8,8 +8,7 @@ class Section:
     _next_section_id = 0
 
     # Initializes class object
-    def __init__(self, course: str, professor: str, pref_time: list[str],
-        is_lab: bool, duration: int, students: int):
+    def __init__(self, course: str, professor: str, pref_time: list[str], pref_days: list[int], is_lab: bool, duration: int, students: int):
         self.section_id = Section._next_section_id
         Section._next_section_id += 1
         # Course name
@@ -19,7 +18,8 @@ class Section:
         # Professor's preference
         self.pref_time = pref_time
         # Professor's preference time range
-        self.pref_time_range = []
+        self.pref_time_range: list[int] = []
+        self.pref_days = pref_days
         # Returns number of seats (students) required in room
         self.number_of_students = students
         # Returns True if the section is a lab, false otherwise
@@ -76,6 +76,13 @@ class Section:
                 f"Room: {self.room_id}, "
                 f"Relative Start: {self.relative_start}")
 
+    def set_day(self, day):
+        self.day = day
+    
+    def set_day_and_time(self, day, time):
+        self.day = day
+        self.relative_start = time
+
     def set_all(self, day, time, room_name, duration):
         """
         Set day, time, room to a section that has finished random generation
@@ -87,8 +94,8 @@ class Section:
         self.day = day
         self.relative_start = time
         # convert relative time to actual time
-        self.start_time = self.time_slot_to_real_time(time)
-        self.end_time = self.time_slot_to_real_time(time + duration)
+        # self.start_time = self.time_slot_to_real_time(time)
+        # self.end_time = self.time_slot_to_real_time(time + duration)
         self.room_id = room_name
 
     def set_actual_time(self):

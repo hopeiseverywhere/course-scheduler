@@ -95,13 +95,14 @@ class Configuration:
                 self.room_by_time_slot[room.id] = {}
                 for i in range(Constant.DAYS_NUM + 1):
                     self.room_by_time_slot[room.id][i] = [
-                        False] * Constant.DAY_SLOTS
+                                                             False] * Constant.DAY_SLOTS
             elif 'section' in item:
                 section_data = item['section']
                 section = Section(
                     course=section_data['course'],
                     professor=section_data['professor'],
                     pref_time=section_data['pref_time'],
+                    pref_days=section_data['pref_day'],
                     is_lab=section_data.get('is_lab'),
                     duration=int(
                         section_data['duration'] / Constant.TIME_SEGMENT),
@@ -144,7 +145,7 @@ class Configuration:
                 if (section.prof_name == lab.prof_name and
                     Constant.lab_main_courses[
                         lab.course_name] == section.course_name and
-                        section.section_id not in main_set):
+                    section.section_id not in main_set):
                     main_set.add(section)
                     self.lab_main_course_sec[lab] = section
                     self.lab_main_course_id[lab.section_id] = section.section_id
@@ -176,7 +177,8 @@ class Configuration:
 
         for section in self.conflicts_dict.keys():
             for other_section in self.sections:
-                if other_section.course_name == Constant.concurrent_courses[section.course_name]:
+                if other_section.course_name == Constant.concurrent_courses[
+                    section.course_name]:
                     self.conflicts_dict[section].append(other_section)
 
         # test out put ------------------
@@ -243,8 +245,10 @@ class Configuration:
             return self._sections_by_id.get(section_id)
         return None
 
-    def is_room_occupied(self, room_id: int, day: int, relative_time: int) -> bool:
-        """Given room id and a relative start time, check whether the room is occupied
+    def is_room_occupied(self, room_id: int, day: int,
+        relative_time: int) -> bool:
+        """Given room id and a relative start time,
+        check whether the room is occupied
 
         Args:
             room_id (int): _description_
@@ -253,12 +257,20 @@ class Configuration:
         Returns:
             bool: _description_
         """
-        
-        if self.room_by_time_slot[room_id][day][relative_time + 1]:
+
+        if self.room_by_time_slot[room_id][day][relative_time] or \
+            self.room_by_time_slot[room_id][day][relative_time + 2]:
             return True
         return False
+    
+    def is_section_in_concurrent(self, section: Section) -> bool:
+        if self.conflicts_dict.get(section) is not None:
+            return True
+        return False
+    
 
-    def set_room_slot(self, room_id: int, day: int, relative_start: int, dur: int):
+    def set_room_slot(self, room_id: int, day: int, relative_start: int,
+        dur: int):
         """If a section randomly select day, time and room, make that room occupied
 
         Args:
@@ -270,26 +282,26 @@ class Configuration:
         for i in range(relative_start, relative_start + dur):
             self.room_by_time_slot[room_id][day][i] = True
         # self.print_room_slot("set room",room_id, day)
-    
+
     def clean_room_slot(self, section: Section):
         """Clean the previous selection
 
         Args:
             section (Section): _description_
         """
-        
+
         if section.room_id is not None:
-            
+
             day = section.day
             room_id = section.room_id
             dur = section.duration
             relative_start = section.relative_start
-            
+
             for i in range(relative_start, relative_start + dur):
                 self.room_by_time_slot[room_id][day][i] = False
             # self.print_room_slot("clean room",room_id, day)
 
-    def print_room_slot(self, msg: str,room_id: int, day: int):
+    def print_room_slot(self, msg: str, room_id: int, day: int):
         print(msg, room_id, self.room_by_time_slot[room_id][day])
 
     @staticmethod

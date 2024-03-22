@@ -8,19 +8,21 @@ class HtmlOutput:
     ROOM_ROW_NUMBER = Constant.DAY_SLOTS + 1
     COLOR1 = "#319378"
     COLOR2 = "#CE0000"
-    CRITERIAS = ('RO', 'SE', 'PO', 'PS', 'L', 'CC')
+    CRITERIAS = ('RO', 'SE', 'PO', 'TI', 'LB', 'CC', 'DA')
     OK_DESCR = ("Current room has no overlapping",
                 "Current room has enough seats",
                 "Professor not overlapped",
                 "Professor time preferences met",
                 "Lab timing requirements met",
-                "Concurrent course requirements met")
+                "Concurrent course requirements met",
+                "Professor day preferences met")
     FAIL_DESCR = ("Current room has overlapping",
                   "Current room has not enough seats",
                   "Professor is overlapped",
                   "Professors time preference not satisfied",
                   "Lab does not have proper timing",
-                  "Course cannot be taken with a concurrent required course")
+                  "Course cannot be taken with a concurrent required course",
+                  "Professor day is not met")
     # PERIODS = (
     #     "", "9 - 10", "10 - 11", "11 - 12", "12 - 13", "13 - 14", "14 - 15", "15 - 16", "16 - 17", "17 - 18", "18 - 19",
     #     "19 - 20", "20 - 21")
@@ -63,21 +65,24 @@ class HtmlOutput:
     WEEK_DAYS = ("MON", "TUE", "WED", "THU", "FRI", "SAT")
 
     @staticmethod
-    def getCourseClass(cc, criterias, ci):
+    def getCourseClass(cc, criteria, section_id):
         COLOR1 = HtmlOutput.COLOR1
         COLOR2 = HtmlOutput.COLOR2
         CRITERIAS = HtmlOutput.CRITERIAS
         length_CRITERIAS = len(CRITERIAS)
 
-        sb = [cc.course_name, "<br />", cc.prof_name, "<br />"]
+        sb = [cc.course_name, "<br />", "Id " +
+              str(cc.section_id), "<br />", cc.prof_name, "<br />"]
         if cc.is_lab:
-            sb.append("Lab<br />")
-
+            sb.append("Is lab<br />")
+        print("here: ",section_id, criteria[section_id])
         for i in range(length_CRITERIAS):
             sb.append("<span style='color:")
-            if criterias[ci + i]:
+            
+            if criteria[section_id][i] is True:
                 sb.append(COLOR1)
                 sb.append("' title='")
+
                 sb.append(HtmlOutput.OK_DESCR[i])
             else:
                 sb.append(COLOR2)
@@ -87,6 +92,7 @@ class HtmlOutput:
             sb.append(CRITERIAS[i])
             sb.append(" </span>")
 
+        # print(sb)
         return sb
 
     @staticmethod
@@ -98,12 +104,13 @@ class HtmlOutput:
         ROOM_COLUMN_NUMBER = HtmlOutput.ROOM_COLUMN_NUMBER
         getCourseClass = HtmlOutput.getCourseClass
 
+        section_id = 0
         for section, reservation_index in items():
             # reservation = Reservation.parse(reservation_index)
 
             # coordinate of time-space slot
-            dayId = section.day + 1
-            periodId = section.relative_start + 1
+            dayId = section.day
+            periodId = section.relative_start
             roomId = section.room_id
             dur = section.duration
 
@@ -129,8 +136,8 @@ class HtmlOutput:
                 time_table[key] = room_schedule
 
             room_schedule[dayId] = "".join(
-                getCourseClass(section, solution.criteria, ci))
-            ci += len(HtmlOutput.CRITERIAS)
+                getCourseClass(section, solution.final_criteria, section_id))
+            section_id += 1
 
         return time_table
 

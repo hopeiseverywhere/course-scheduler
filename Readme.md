@@ -1,5 +1,5 @@
 # Version
-ver=3.0
+ver=4.0
 
 # Reference
 https://github.com/mcychan/GASchedule.py

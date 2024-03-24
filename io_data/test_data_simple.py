@@ -1,70 +1,23 @@
 data = [
+
     {
         "section": {
             "course": "5001",
-            "professor": "Mullen",
-            "pref_time": ["morning", "afternoon"],
+            "professor": "Tony Mullen",
+            "pref_time": ["morning"],
+            "pref_day": [0, 1, 2, 3, 4],
             "is_lab": False,
             "duration": 200,
-            "students": 60
+            "students": 40
         }
     },
     {
         "section": {
             "course": "5003",
-            "professor": "Mullen",
-            "pref_time": ["morning", "afternoon"],
+            "professor": "Tony Mullen",
+            "pref_time": ["morning"],
+            "pref_day": [0, 1, 2, 3, 4],
             "is_lab": True,
-            "duration": 100,
-            "students": 60
-        }
-    },
-    {
-        "section": {
-            "course": "5004",
-            "professor": "Bonaci",
-            "pref_time": ["morning", "afternoon"],
-            "is_lab": False,
-            "duration": 200,
-            "students": 60
-        }
-    },
-    {
-        "section": {
-            "course": "5005",
-            "professor": "Bonaci",
-            "pref_time": ["morning", "afternoon"],
-            "is_lab": True,
-            "duration": 100,
-            "students": 60
-        }
-    },
-    {
-        "section": {
-            "course": "5008",
-            "professor": "Singh",
-            "pref_time": ["morning", "afternoon", "evening"],
-            "is_lab": False,
-            "duration": 200,
-            "students": 60
-        }
-    },
-    {
-        "section": {
-            "course": "5009",
-            "professor": "Singh",
-            "pref_time": ["morning", "afternoon", "evening"],
-            "is_lab": True,
-            "duration": 100,
-            "students": 60
-        }
-    },
-    {
-        "section": {
-            "course": "5002",
-            "professor": "Veliz",
-            "pref_time": ["morning", "afternoon"],
-            "is_lab": False,
             "duration": 100,
             "students": 40
         }
@@ -72,102 +25,133 @@ data = [
     {
         "section": {
             "course": "5001",
-            "professor": "Geeng",
-            "pref_time": ["morning", "afternoon", "evening"],
+            "professor": "Sarita Singh",
+            "pref_time": ["morning", "afternoon"],
+            "pref_day": [0, 1, 2, 3, 4],
             "is_lab": False,
             "duration": 200,
-            "students": 30
+            "students": 40
         }
     },
     {
         "section": {
             "course": "5003",
-            "professor": "Geeng",
-            "pref_time": ["morning", "afternoon", "evening"],
+            "professor": "Sarita Singh",
+            "pref_time": ["morning", "afternoon"],
+            "pref_day": [0, 1, 2, 3, 4],
             "is_lab": True,
             "duration": 100,
-            "students": 30
-        }
-    },
-    {
-        "section": {
-            "course": "5004",
-            "professor": "Cobbe",
-            "pref_time": ["morning", "afternoon", "evening"],
-            "is_lab": False,
-            "duration": 200,
-            "students": 30
-        }
-    },
-    {
-        "section": {
-            "course": "5005",
-            "professor": "Cobbe",
-            "pref_time": ["morning", "afternoon", "evening"],
-            "is_lab": True,
-            "duration": 100,
-            "students": 30
+            "students": 40
         }
     },
     {
         "section": {
             "course": "5001",
-            "professor": "Mishra",
-            "pref_time": ["evening"],
+            "professor": "Aditya Mishra",
+            "pref_time": ["morning", "afternoon"],
+            "pref_day": [0, 1, 2, 3, 4],
             "is_lab": False,
             "duration": 200,
-            "students": 30
+            "students": 40
         }
     },
     {
         "section": {
             "course": "5003",
-            "professor": "Mishra",
-            "pref_time": ["evening"],
+            "professor": "Aditya Mishra",
+            "pref_time": ["morning", "afternoon"],
+            "pref_day": [0, 1, 2, 3, 4],
             "is_lab": True,
             "duration": 100,
-            "students": 30
+            "students": 40
         }
     },
     {
         "section": {
             "course": "5002",
-            "professor": "Mishra",
-            "pref_time": ["afternoon", "evening"],
+            "professor": "Oscar Veliz",
+            "pref_time": ["morning", "afternoon"],
+            "pref_day": [0, 1, 2, 3, 4],
             "is_lab": False,
             "duration": 200,
-            "students": 30
+            "students": 60
+        }
+    },
+    {
+        "section": {
+            "course": "5002",
+            "professor": "Steve Shafer",
+            "pref_time": ["evening"],
+            "pref_day": [1],
+            "is_lab": False,
+            "duration": 200,
+            "students": 60
+        }
+    },
+    {
+        "section": {
+            "course": "5004",
+            "professor": "Tamara Bonaci",
+            "pref_time": ["morning", "afternoon"],
+            "pref_day": [0, 1, 2, 3, 4],
+            "is_lab": False,
+            "duration": 200,
+            "students": 40
+        }
+    },
+    {
+        "section": {
+            "course": "5004",
+            "professor": "Chris Geeng",
+            "pref_time": ["evening"],
+            "pref_day": [0, 1, 2, 3, 4],
+            "is_lab": False,
+            "duration": 200,
+            "students": 40
+        }
+    },
+    {
+        "section": {
+            "course": "5005",
+            "professor": "Tamara Bonaci",
+            "pref_time": ["morning", "afternoon"],
+            "pref_day": [0, 1, 2, 3, 4],
+            "is_lab": True,
+            "duration": 100,
+            "students": 40
+        }
+    },
+    {
+        "section": {
+            "course": "5005",
+            "professor": "Chris Geeng",
+            "pref_time": ["evening"],
+            "pref_day": [0, 1, 2, 3, 4],
+            "is_lab": True,
+            "duration": 100,
+            "students": 40
         }
     },
     {
         "section": {
             "course": "5008",
-            "professor": "Hussein",
-            "pref_time": ["evening"],
+            "professor": "Sarita Singh",
+            "pref_time": ["morning", "afternoon"],
+            "pref_day": [1, 2, 3],
             "is_lab": False,
             "duration": 200,
-            "students": 30
+            "students": 40
         }
     },
-
     {
         "section": {
             "course": "5009",
-            "professor": "Hussein",
-            "pref_time": ["evening"],
+            "professor": "Sarita Singh",
+            "pref_time": ["morning", "afternoon"],
+            "pref_day": [1, 2, 3],
             "is_lab": True,
             "duration": 100,
-            "students": 30
-        }
-    },
-    {
-        "section": {
-            "course": "5002",
-            "professor": "Shafer",
-            "pref_time": ["evening"],
-            "is_lab": False,
-            "duration": 200,
-            "students": 30
+            "students": 40
         }
     },
     {

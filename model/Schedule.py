@@ -52,6 +52,10 @@ class Schedule:
         # Initialize objectives list
         self._objectives: List[int] = []
 
+        # Testing vars
+        self._score = 0
+        self._criteria_len = len(self._criteria)
+
     def __str__(self):
         pass
 
@@ -89,7 +93,7 @@ class Schedule:
             main_course = self._configuration.get_main_section(
                 section)
             while abs(day == main_course.day):
-                print("a here: ", section.course_num, section.prof_name, day, main_course.day)
+                #print("a here: ", section.course_num, section.prof_name, day, main_course.day)
 
                 day = random.choice(section.pref_days)
                 if abs(day - main_course.day >= 1):
@@ -136,7 +140,7 @@ class Schedule:
         time = self.rand_time(section)
         for conflict in self.configuration.conflicts_dict[section]:
             while Criteria.is_time_and_day_overlap(section, conflict):
-                print("b here")
+                #print("b here")
                 day = self.rand_day(section)
                 time = self.rand_time(section)
                 if (day == conflict.day):
@@ -483,6 +487,7 @@ class Schedule:
 
         # check criteria cna calculate scores for each section in schedule
         for section, reservation_index in items:
+            section_score = 0
             reservation = Reservation.parse(reservation_index)
 
             # coordinates of time-space slot
@@ -542,15 +547,16 @@ class Schedule:
 
             # if the constraint checks out, ci[i] must be true
             for i in range(len(self._objectives)):
-                if criteria[ci + i]:
+                if criteria[ci + i]:  # Checking if that criteria was fulfilled
                     score += 1
                 else:
-                    score += Criteria.weights[i]
+                    score += Criteria.weights[i]  # Adding partial credit for that weight if unfulfilled
                     self._objectives[i] += 1 if Criteria.weights[i] > 0 else 2
             ci += self.criteria_size
 
         # calculate fitness value based on score
         self._fitness = score / len(criteria)
+        self._score = score
 
     def __eq__(self, other):
         if isinstance(other, Schedule):
@@ -599,6 +605,14 @@ class Schedule:
     def converted_objectives(self):
         # print(self._converted_objectives)
         return self._converted_objectives
+
+    @property
+    def score(self):
+        return self._score
+
+    @property
+    def criteria_length(self):
+        return self._criteria_len
 
     def print_criteria(self):
         size = self.criteria_size

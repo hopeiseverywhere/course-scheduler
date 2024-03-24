@@ -38,6 +38,8 @@ class Section:
         self.room_id = None
         # Section's relative start time
         self.relative_start = None
+        # Whether all criteria satisfied for the section
+        self.criteria_met = False
 
     def assign_time(self):
         # Randomly select a start time from available times
@@ -75,7 +77,8 @@ class Section:
                 f"Start Day: {self.day}, "
                 f"Start Time: {self.start_time}, "
                 f"Room: {self.room_id}, "
-                f"Relative Start: {self.relative_start}")
+                f"Relative Start: {self.relative_start}, "
+                f"Criteria Satisfied: {self.criteria_met}")
 
     def set_day(self, day):
         self.day = day
@@ -98,6 +101,9 @@ class Section:
         # self.start_time = self.time_slot_to_real_time(time)
         # self.end_time = self.time_slot_to_real_time(time + duration)
         self.room_id = room_name
+
+    def set_criteria_met(self, criteria_met):
+        self.criteria_met = criteria_met
 
     def set_actual_time(self):
         # convert relative time to actual time
@@ -155,5 +161,6 @@ class Section:
             "End Time": section.end_time,
             "Room": section.room_id,
             "Dur": section.duration,
-            "Relative Start": section.relative_start
+            "Relative Start": section.relative_start,
+            "Criteria Satisfied": section.criteria_met
         }

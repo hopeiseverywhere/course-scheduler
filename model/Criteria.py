@@ -10,18 +10,18 @@ from model.Configuration import Configuration
 class Criteria:
     # 7 criteria for calculating fitness
     # 0 - 1, 0 is more important, 1 is not important
-    weights = [0.2, 0.5, 0.2, 0.75, 0.5, 0.5, 0.2]
+    weights = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
     criteria_size = len(weights)
 
     # 0. check for room overlapping of classes
     @staticmethod
     def is_room_overlapped(room_by_time_slot: Dict[int, Dict[int, List[bool]]],
-        room_id: int, day: int, relative_start: int):
+                           room_id: int, day: int, relative_start: int):
         """
         Check if there is any room overlap for the given reservation
         """
         if (room_by_time_slot[room_id][day][relative_start] is True
-            or room_by_time_slot[room_id][day][relative_start + 2] is True):
+                or room_by_time_slot[room_id][day][relative_start + 2] is True):
             return True
         return False
 
@@ -56,7 +56,7 @@ class Criteria:
     # 3. professor satisfied
     @staticmethod
     def is_prof_satisfied(pref_time_range: List[int], start_time: int,
-        end_time: int):
+                          end_time: int):
         return (start_time >= pref_time_range[0] and
                 end_time <= pref_time_range[1])
 
@@ -71,7 +71,7 @@ class Criteria:
             main_section (Section): lab section's corresponding main section
 
         Returns:
-            bool: 
+            bool:
         """
         # Return True if not a lab -
         # these checks won't be necessary for main courses
@@ -92,7 +92,7 @@ class Criteria:
 
     @staticmethod
     def is_conflict(section: Section,
-        conflicts_dict: Dict[Section, List[Section]]) -> bool:
+                    conflicts_dict: Dict[Section, List[Section]]) -> bool:
         """Check if current section has a concurrent conflict section
 
         Args:
@@ -151,8 +151,6 @@ class Criteria:
         return (comp_start <= curr_start <= comp_end or
                 comp_start <= curr_end <= comp_end)
 
-    
     @staticmethod
     def is_time_and_day_overlap(section1: Section, section2: Section) -> bool:
         return Criteria.is_time_overlap(section1, section2) and section1.day == section2.day
-

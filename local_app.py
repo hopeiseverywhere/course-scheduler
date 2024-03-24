@@ -19,7 +19,7 @@ def local_app():
     configuration.parse_file(data)
 
     alg = GeneticAlgorithm(configuration)
-    alg.run(9999, 0.97)
+    alg.run(9999, 0.95)
 
     get_result(alg.result)
 
@@ -33,6 +33,8 @@ def local_app():
     seconds = (int(round(time.time() * 1000)) - start_time) / 1000.0
     print("\nCompleted in {} secs.\n".format(seconds))
     os.system("open " + temp_file_path)
+
+    alg.result.configuration.print_room_slot()
 
     # configuration.print_lab_section_dict()
 

@@ -23,11 +23,15 @@ class Configuration:
 
         # key : room id
         # values = [6 days]:[all time slots]
-        self.room_by_time_slot: Dict[int, Dict[int, List[bool]]] = {}
+        self.room_by_time_slot: Dict[int, Dict[int, List[bool | int]]] = {}
         # parsed sections
         self._sections = []
+
         # key lab section : value main course section
         self.lab_main_course_sec: Dict[Section: Section] = {}
+        # map lan/main to main/lab
+        self.lab_and_main_secs: Dict[Section: Section] = {}
+
         # lab section id : main section id
         self.lab_main_course_id: Dict[int: int] = {}
 
@@ -56,18 +60,7 @@ class Configuration:
             section.pref_time_range = time_range
             # print(section.pref_time_range)
 
-    def init_room_by_capacity(self):
-        """
-        init the dictionary with keys ranging from 5 to 100
-        """
-        self.rooms_by_capacity = {key: [] for key in range(5, 101, 5)}
-        for room in self._rooms.values():
-            capacity = room.number_of_seats
-            for i in range(5, 101, 5):
-                if capacity >= i:
-                    self.rooms_by_capacity[i].append(room.id)
-
-        # print(self.rooms_by_capacity)
+    
 
     def parse_file(self, data: list[dict[str, Any]]) -> None:
         """
@@ -95,7 +88,7 @@ class Configuration:
                 self.room_by_time_slot[room.id] = {}
                 for i in range(Constant.DAYS_NUM + 1):
                     self.room_by_time_slot[room.id][i] = [
-                                                             False] * Constant.DAY_SLOTS
+                        False] * Constant.DAY_SLOTS
             elif 'section' in item:
                 section_data = item['section']
                 section = Section(
@@ -113,7 +106,7 @@ class Configuration:
                 self._sections.append(section)
                 self._sections_by_id[section.section_id] = section
 
-        self._sections = sorted(self._sections, key=lambda x: x.is_lab)
+        # self._sections = sorted(self._sections, key=lambda x: x.is_lab)
         # #  test out put -----------------------
         # for section in self.sections:
         #     print("{:<20} {}".format(section.to_str(), section.is_lab))
@@ -126,6 +119,19 @@ class Configuration:
         self.init_non_concurrent_dict()
         self._isEmpty = False
         # print(self.room_by_time_slot[0])
+
+    def init_room_by_capacity(self):
+        """
+        init the dictionary with keys ranging from 5 to 100
+        """
+        self.rooms_by_capacity = {key: [] for key in range(5, 101, 5)}
+        for room in self._rooms.values():
+            capacity = room.number_of_seats
+            for i in range(5, 101, 5):
+                if capacity >= i:
+                    self.rooms_by_capacity[i].append(room.id)
+
+        # print(self.rooms_by_capacity)
 
     def init_lab_section_dict(self):
         """lab section : main section
@@ -146,27 +152,22 @@ class Configuration:
                 if (section.prof_name == lab.prof_name and
                     Constant.lab_main_courses[
                         lab.course_num] == section.course_num and
-                    section.section_id not in main_set):
+                        section.section_id not in main_set):
                     main_set.add(section)
                     self.lab_main_course_sec[lab] = section
                     self.lab_main_course_id[lab.section_id] = section.section_id
 
                     continue
 
-        # test out put ------------------
-        # print("{:<20} {}".format("Lab section", "Main section"))
-        # for lab in self.lab_main_course_sec.keys():
-        #     print("{:<20} {}".format(lab.to_str(),
-        #                              self.lab_main_course_sec[lab].to_str()))
-        # for lab_id in self.lab_main_course_id.keys():
-        #     print("{:<20} {}".format(lab_id, self.lab_main_course_id[lab_id]))
+        main_sec_to_lab: Dict[Section, Section] = {}
+        # map main section to lab
+        for key, item in self.lab_main_course_sec.items():
+            main_sec_to_lab[item] = key
 
-    def print_lab_section_dict(self):
-        print("{:<20} {}".format("Main section", "Day time"))
-        for lab, main_course in self.lab_main_course_sec.items():
-            print("{:<20} {} {}".format(main_course.course_num,
-                                        main_course.day,
-                                        main_course.start_time))
+        # join 2 dictionaries together
+        self.lab_and_main_secs = main_sec_to_lab.copy()
+        self.lab_and_main_secs.update(self.lab_main_course_sec)
+
 
     def init_non_concurrent_dict(self):
         """
@@ -179,7 +180,7 @@ class Configuration:
         for section in self.conflicts_dict.keys():
             for other_section in self.sections:
                 if other_section.course_num == Constant.concurrent_courses[
-                    section.course_num]:
+                        section.course_num]:
                     self.conflicts_dict[section].append(other_section)
 
         # test out put ------------------
@@ -189,21 +190,7 @@ class Configuration:
         #     value_sections = [value.course_name for value in value_list]
         #     print("{:<10} : {}".format(key_sections, value_sections))
 
-    @property
-    def number_of_sections(self):
-        return len(self._sections)
-
-    @property
-    def number_of_rooms(self):
-        return len(self._rooms)
-
-    @property
-    def sections(self):
-        return self._sections
-
-    @property
-    def number_of_lab_sections(self):
-        return len(self.lab_main_course_id.keys())
+    
 
     def get_main_section(self, lab: Section):
         """
@@ -229,6 +216,16 @@ class Configuration:
             main_sec_id = self.lab_main_course_id[lab_id]
             return self.get_section_by_id(main_sec_id)
         return None
+    
+    def get_linked_section(self, sec: Section):
+        """Given a lab/main section, return the corresponding main/lab section
+
+        Args:
+            sec (Section): _description_
+        """
+        if sec in self.lab_and_main_secs:
+            return self.lab_and_main_secs.get(sec)
+        return False
 
     def get_room_by_id(self, room_id: int) -> Room | None:
         """
@@ -247,7 +244,7 @@ class Configuration:
         return None
 
     def is_room_occupied(self, room_id: int, day: int,
-        relative_time: int) -> bool:
+                         relative_time: int) -> bool:
         """Given room id and a relative start time,
         check whether the room is occupied
 
@@ -260,18 +257,30 @@ class Configuration:
         """
 
         if self.room_by_time_slot[room_id][day][relative_time] or \
-            self.room_by_time_slot[room_id][day][relative_time + 2]:
+                self.room_by_time_slot[room_id][day][relative_time + 2]:
             return True
         return False
     
+    def is_section_linked_to_lab(self, section: Section) -> bool:
+        """Given a section, check whether it linked to a lab/main section
+
+        Args:
+            section (Section): _description_
+
+        Returns:
+            bool: _description_
+        """
+        if section in self.lab_and_main_secs:
+            return True
+        return False
+
     def is_section_in_concurrent(self, section: Section) -> bool:
         if self.conflicts_dict.get(section) is not None:
             return True
         return False
-    
 
-    def set_room_slot(self, room_id: int, day: int, relative_start: int,
-        dur: int):
+    def set_room_slot(self, sec_id: int, room_id: int, day: int, relative_start: int,
+                      dur: int):
         """If a section randomly select day, time and room, make that room occupied
 
         Args:
@@ -281,8 +290,8 @@ class Configuration:
             dur (int): _description_
         """
         for i in range(relative_start, relative_start + dur):
-            self.room_by_time_slot[room_id][day][i] = True
-        # self.print_room_slot("set room",room_id, day)
+            self.room_by_time_slot[room_id][day][i] = sec_id
+        
 
     def clean_room_slot(self, section: Section):
         """Clean the previous selection
@@ -314,8 +323,44 @@ class Configuration:
             int: The rounded down number to the nearest multiple of 5
         """
         return (number // 5) * 5
+    
+    @staticmethod
+    def print_dict(dict: Dict[Section, Section]):
+        """
+        print a dictionary for testing
+        """
+        print("{:<20} {}".format("A section", "Mapped Section"))
+        for sec1, sec2 in dict.items():
+            print(
+                "{:<20} {}".format(sec1.course_num + "+" + str(sec1.section_id),
+                                   sec2.course_num + "+" + str(
+                                       sec2.section_id)))
 
     def __str__(self) -> str:
         info = f"Number of Rooms: {self.number_of_rooms}\n"
         info += f"Number of Sections: {self.number_of_sections}\n"
         return info
+
+    @property
+    def number_of_sections(self):
+        return len(self._sections)
+
+    @property
+    def number_of_rooms(self):
+        return len(self._rooms)
+
+    @property
+    def sections(self):
+        return self._sections
+
+    @property
+    def number_of_lab_sections(self):
+        return len(self.lab_main_course_id.keys())
+
+    def print_room_slot(self):
+        for room_id, room_data in self.room_by_time_slot.items():
+            room_name = self.get_room_by_id(room_id)
+            print(f"Room: {room_name}")
+            for day, time_slots in room_data.items():
+                print(f"  Day: {day}")
+                print("    Time Slots:", time_slots)

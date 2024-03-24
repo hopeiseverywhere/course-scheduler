@@ -85,26 +85,26 @@ class Schedule:
         """
         Make a random selection of (day)
         """
-        # if the current section is a lab
-        # random select day based on its main course
+        # if the current section is a lab/main
+        # random select day based on its main/lab course
 
         day = random.choice(section.pref_days)
-        if section.is_lab:
-            main_course = self._configuration.get_main_section(
-                section)
-            while abs(day == main_course.day):
-                #print("a here: ", section.course_num, section.prof_name, day, main_course.day)
 
+        if self.configuration.is_section_linked_to_lab(section):
+            linked = self.configuration.get_main_section(
+                section)
+            while linked is not None and abs(day - linked.day) <= 1:
+                # print("a here: ", section.course_num, section.prof_name, day, linked.day)
                 day = random.choice(section.pref_days)
-                if abs(day - main_course.day >= 1):
+                if abs(day - linked.day >= 1):
                     return day
-                if abs(day - main_course.day) < 1:
-                    self.configuration.clean_room_slot(main_course)
-                    conflict_day = random.choice(main_course.pref_days)
-                    main_course.set_day(conflict_day)
-                    self.configuration.set_room_slot(
-                        main_course.room_id, conflict_day, main_course.relative_start, main_course.duration)
-                    if abs(day - main_course.day >= 1):
+                if abs(day - linked.day) < 1:
+                    self.configuration.clean_room_slot(linked)
+                    conflict_day = random.choice(linked.pref_days)
+                    linked.set_day(conflict_day)
+                    self.configuration.set_room_slot(linked.section_id,
+                        linked.room_id, conflict_day, linked.relative_start, linked.duration)
+                    if abs(day - linked.day >= 1):
                         return day
 
         return day
@@ -113,10 +113,10 @@ class Schedule:
         """
         Make a random selection of a relative start time
         """
-        
+
         pref_range = section.pref_time_range
         duration = section.duration
-        
+
         if duration > pref_range[1]:
             # for professor only prefer morning time slot
             seed = randrange(2, 4)
@@ -124,7 +124,7 @@ class Schedule:
             start_time = randrange(pref_range[0], pref_range[0] + seed)
         else:
             start_time = randrange(pref_range[0], pref_range[1] + 1 - duration)
-        
+
         # actively assign those who is ok with evening sections evening first
         seed = randrange(2)
         if "evening" in section.pref_time and seed == 1:
@@ -133,14 +133,13 @@ class Schedule:
         return start_time
 
     def check_conflict(self, section: Section):
-
         # make sure no conflict with its conflict section
         # if section in self.configuration.conflicts_dict.keys():
         day = self.rand_day(section)
         time = self.rand_time(section)
         for conflict in self.configuration.conflicts_dict[section]:
             while Criteria.is_time_and_day_overlap(section, conflict):
-                #print("b here")
+                # print("b here")
                 day = self.rand_day(section)
                 time = self.rand_time(section)
                 if (day == conflict.day):
@@ -158,6 +157,7 @@ class Schedule:
         """
         self.configuration.clean_room_slot(section)
         dur = section.duration
+        sec_id = section.section_id
 
         number_of_students = section.number_of_students
         number_of_students = Configuration.round_down_to_nearest_five(
@@ -168,6 +168,7 @@ class Schedule:
         # select a room with enough size and empty
         room_id = random.choice(
             self._configuration.rooms_by_capacity[number_of_students])
+        # if the room is occupied, perform random selection again
         while self.configuration.is_room_occupied(room_id, day, start_time):
             # print("here")
             room_id = random.choice(
@@ -179,7 +180,7 @@ class Schedule:
                 day = self.rand_day(section)
                 start_time = self.rand_time(section)
 
-        self.configuration.set_room_slot(room_id, day, start_time, dur)
+        self.configuration.set_room_slot(sec_id, room_id, day, start_time, dur)
         return day, start_time, room_id
 
     def make_new_from_prototype(self, positions=None):
@@ -220,76 +221,6 @@ class Schedule:
         new_chromosome.get_fitness()
 
         return new_chromosome
-
-    # def crossover1(self, parent: 'Schedule', number_of_crossover_points,
-    #                crossover_prob):
-    #     """
-    #     Performs crossover operation using to
-    #     chromosomes and returns pointer to offspring
-    #     :param parent:
-    #     :param number_of_crossover_points:
-    #     :param crossover_prob:
-    #     :return:
-    #     """
-    #     # check probability of crossover operation
-    #     if randrange(100) > crossover_prob:
-    #         # no crossover, just copy first parent
-    #         return self.copy(self, False)
-    #
-    #     # new chromosome object, copy chromosome setup
-    #     offspring: Schedule = self.copy(self, True)
-    #     offspring_sections_table, offspring_slots = (
-    #         offspring._sections_table, offspring._slots)
-    #
-    #     sections_table = self._sections_table
-    #     course_sections = tuple(sections_table.keys())
-    #     parent_sections_table = parent.sections_table
-    #     parent_sections = tuple(parent.sections_table.keys())
-    #
-    #     # number of sections
-    #     size = self.size
-    #
-    #     cp = size * [False]
-    #
-    #     # determine crossover point (randomly)
-    #     for i in range(number_of_crossover_points, 0, -1):
-    #         check_point = False
-    #         while not check_point:
-    #             p = randrange(size)
-    #             if not cp[p]:
-    #                 cp[p] = check_point = True
-    #
-    #     # make new code by combining parent codes
-    #     first = randrange(2) == 0
-    #
-    #     for i in range(size):
-    #         if first:
-    #             selected_section = course_sections[i]
-    #             reservation_index = sections_table[selected_section]
-    #             # insert section from first parent
-    #             # into new chromosome's class table
-    #         else:
-    #             selected_section = parent_sections[i]
-    #             reservation_index = parent_sections_table[selected_section]
-    #             # insert section from second parent
-    #             # into new chromosome's class table
-    #
-    #         dur = selected_section.duration
-    #         offspring_sections_table[selected_section] = reservation_index
-    #         # all time-space slots of class are copied
-    #         for j in range(dur - 1, -1, -1):
-    #             offspring_slots[reservation_index + j].append(
-    #                 selected_section)
-    #
-    #         # crossover point
-    #         if cp[i]:
-    #             # change source chromosome
-    #             first = not first
-    #
-    #     offspring.get_fitness()
-    #
-    #     # return smart pointer to offspring
-    #     return offspring
 
     def crossover(self, parent: 'Schedule', number_of_crossover_points,
                   crossover_prob):
@@ -369,14 +300,25 @@ class Schedule:
 
     def repair_crossover(self, appeared: Set[int], section: Section,
                          slots: List[List[Section]]):
+        """repair crossover, if the selected section is linked to another section
+
+        Args:
+            appeared (Set[int]): _description_
+            section (Section): _description_
+            slots (List[List[Section]]): _description_
+
+        Returns:
+            _type_: _description_
+        """
+        # ignore appeared sections
         if section.section_id in appeared:
             return None
         number_of_rooms = self._configuration.number_of_rooms
-        # if the section is lab, get the main
-        if section.is_lab:
-            linked = self.configuration.get_main_section(section)
-        else:
-            linked = self.configuration.get_lab_section(section)
+
+        # if the section is lab/main, get the main/lab
+
+        if self.configuration.is_section_linked_to_lab(section):
+            linked = self.configuration.get_linked_section(section)
 
         if linked is not None and linked.section_id not in appeared:
             appeared.add(linked.section_id)
@@ -406,6 +348,13 @@ class Schedule:
 
     def repair(self, section: Section, reservation_idx:
                int, reservation: Reservation):
+        """Repair mutations
+
+        Args:
+            section (Section): _description_
+            reservation_idx (int): _description_
+            reservation (Reservation): _description_
+        """
         # extract relevant prams and constant
         number_of_rooms = self._configuration.number_of_rooms
         # DAY_HOURS, DAYS_NUM = Constant.DAY_SLOTS, Constant.DAYS_NUM
@@ -550,7 +499,8 @@ class Schedule:
                 if criteria[ci + i]:  # Checking if that criteria was fulfilled
                     score += 1
                 else:
-                    score += Criteria.weights[i]  # Adding partial credit for that weight if unfulfilled
+                    # Adding partial credit for that weight if unfulfilled
+                    score += Criteria.weights[i]
                     self._objectives[i] += 1 if Criteria.weights[i] > 0 else 2
             ci += self.criteria_size
 
@@ -620,11 +570,10 @@ class Schedule:
         for i in range(0, len(self.criteria), size):
             print(num, ":", self.criteria[i:i + size])
             num += 1
-        
 
     def update_final_criteria(self):
         size = self.criteria_size
-        
+
         self.final_criteria = self.criteria.reshape(-1, size).tolist()
         # print(self.final_criteria)
         # num = 0

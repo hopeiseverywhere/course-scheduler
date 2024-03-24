@@ -2,11 +2,12 @@ import json
 # from model.Configuration import Configuration
 from model.Schedule import Schedule
 from model.Section import Section
+from model.Criteria import Criteria
 import os
 
 main_dir = os.path.dirname(os.path.abspath(__file__))
 file_path = os.path.join(main_dir, "..", "io_data", "output.json")
-
+Criteria = Criteria
 
 def get_result(solution: Schedule):
     """
@@ -16,7 +17,14 @@ def get_result(solution: Schedule):
     solution.update_final_criteria()
     configuration = solution.configuration
     get_room_by_id = configuration.get_room_by_id
-    sections = configuration.sections
+
+    # Sort the list of sections so criteria satisfaction for each course can be easily checked
+    sections = sorted(configuration.sections, key=lambda x: x.section_id)
+    criteria_size = Criteria.criteria_size
+
+    # Set whether all criteria satisfied for each course
+    for i in range(0, solution.criteria_length, criteria_size):
+        sections[i // criteria_size].set_criteria_met(all(solution.criteria[i:i + criteria_size]))
 
     sections_dict_list = []
     for section in sections:
@@ -28,9 +36,8 @@ def get_result(solution: Schedule):
         sections_dict_list.append(section_dict)
 
     # sort the list by section id
-    sections_dict_list = sorted(sections_dict_list,
-                                key=lambda x: x["Section Id"])
-    # print(sections_dict_list)
+    # sections_dict_list = sorted(sections_dict_list,
+    #                             key=lambda x: x["Section Id"])
 
     json_string = json.dumps(sections_dict_list, indent=4)
 

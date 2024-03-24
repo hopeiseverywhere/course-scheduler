@@ -549,14 +549,10 @@ class Schedule:
             for i in range(len(self._objectives)):
                 if criteria[ci + i]:  # Checking if that criteria was fulfilled
                     score += 1
-                    section_score += 1
                 else:
                     score += Criteria.weights[i]  # Adding partial credit for that weight if unfulfilled
                     self._objectives[i] += 1 if Criteria.weights[i] > 0 else 2
             ci += self.criteria_size
-
-            # If all criteria met for a section, set its criteria-met value to True
-            section.set_criteria_met(section_score == Criteria.criteria_size)  # TODO not setting correctly
 
         # calculate fitness value based on score
         self._fitness = score / len(criteria)

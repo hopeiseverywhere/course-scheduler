@@ -555,7 +555,7 @@ class Schedule:
                     self._objectives[i] += 1 if Criteria.weights[i] > 0 else 2
             ci += self.criteria_size
 
-            # If all criteria met for a section, set its complete value to True
+            # If all criteria met for a section, set its criteria-met value to True
             section.set_criteria_met(section_score == Criteria.criteria_size)  # TODO not setting correctly
 
         # calculate fitness value based on score

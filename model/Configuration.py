@@ -84,7 +84,7 @@ class Configuration:
                 self._rooms[room.id] = room
                 # update room by time slot
                 self.room_by_time_slot[room.id] = {}
-                for i in range(Constant.DAYS_NUM + 1):
+                for i in range(Constant.DAYS_NUM):
                     self.room_by_time_slot[room.id][i] = [
                         False] * Constant.DAY_SLOTS
             elif 'section' in item:
@@ -257,8 +257,16 @@ class Configuration:
             # Condition 1: All elements are False -> room is not occupied
             return False
 
-        count_false = sublist.count(False)
-        count_id = sublist.count(sec_id)
+        count_false = 0
+        count_id = 0
+        for el in sublist:
+            if el is False:
+                count_false += 1
+            elif el == sec_id:
+                count_id += 1
+            elif el is not False and el != sec_id:
+                # Condition 2: If any element is not equal to sec_id and not false, room is occupied
+                return True
         # Condition 3: If false count + section count == length of sublist -> room is not occupied
         if count_false + count_id == len(sublist):
             return False
@@ -297,11 +305,12 @@ class Configuration:
         sublist = []
         for i in range(relative_start, relative_start + dur):
             sublist.append(self.room_by_time_slot[room_id][day][i])
-        if all(el is False for el in sublist):
-
+        
+        if self.is_room_occupied(sec_id=sec_id, dur=dur, day=day, relative_time=relative_start, room_id=room_id) is False:
             for i in range(relative_start, relative_start + dur):
 
                 self.room_by_time_slot[room_id][day][i] = sec_id
+            self.sections[sec_id].set_all(day, relative_start, room_id)
 
     def clean_room_slot(self, section: Section):
         """Clean the previous selection
@@ -372,9 +381,12 @@ class Configuration:
         return len(self.lab_main_course_id.keys())
 
     def print_room_slot(self):
+        """Print room mapped to day, time slot map
+        """
+        day_mapping = {0: 'MON', 1: 'TUW', 2: 'WED', 3: 'THU', 4: 'FRI', 5: 'SAT'}
         for room_id, room_data in self.room_by_time_slot.items():
             room_name = self.get_room_by_id(room_id)
             print(f"Room: {room_name}")
             for day, time_slots in room_data.items():
-                print(f"  Day: {day}")
+                print(f"  Day: {day_mapping[day]}")
                 print("    Time Slots:", time_slots)

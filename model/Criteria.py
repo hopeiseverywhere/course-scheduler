@@ -22,13 +22,23 @@ class Criteria:
         sublist = []
         for i in range(relative_time, relative_time + dur):
             sublist.append(room_slot[room_id][day][i])
-
+        
         if all(el is False for el in sublist):
             # Condition 1: All elements are False -> room is not occupied
             return False
 
-        count_false = sublist.count(False)
-        count_id = sublist.count(sec_id)
+        count_false = 0
+        count_id = 0
+        for el in sublist:
+            if el is False:
+                count_false += 1
+            elif el == sec_id:
+                count_id += 1
+            elif el is not False and el != sec_id:
+                # print(sec_id ,"is conflict with id", el)
+                # Condition 2: If any element is not equal to sec_id and not false, room is occupied
+                return True
+                
         # Condition 3: If false count + section count == length of sublist -> room is not occupied
         if count_false + count_id == len(sublist):
             return False
@@ -44,7 +54,7 @@ class Criteria:
 
     # 2. professor overlap
     @staticmethod
-    def is_prof_overlapped(slots, section, number_of_rooms, time_id):
+    def is_prof_overlapped1(slots, section, number_of_rooms, time_id):
         po = False
 
         dur = section.duration
@@ -64,41 +74,74 @@ class Criteria:
 
             time_id += Constant.DAY_SLOTS
         return po
+    
+    @staticmethod
+    def is_prof_overlapped(section: Section, sections: List[Section]):
+        for section1 in sections:
+            if section1.section_id == section.section_id:
+                continue
+            if section1.professor_overlaps(section):
+                return True
+        return False
 
     # 3. professor satisfied
     @staticmethod
     def is_prof_satisfied(pref_time_range: List[int], start_time: int,
                           end_time: int):
-        return (start_time >= pref_time_range[0] and
-                end_time <= pref_time_range[1])
+        # loose prof satisfied range a little bit
+        max_diff = 3
+        return (start_time >= pref_time_range[0] - max_diff and
+                end_time <= pref_time_range[1] + max_diff)
 
     # 4. Lab timings satisfied
+    # @staticmethod
+    # def is_lab_satisfied(lab_section: Section, main_section: Section) -> bool:
+    #     """Return true if lab section's timing is satisfied,
+    #     false otherwise
+
+    #     Args:
+    #         lab_section (Section): lab section
+    #         main_section (Section): lab section's corresponding main section
+
+    #     Returns:
+    #         bool:
+    #     """
+    #     # Return True if not a lab -
+    #     # these checks won't be necessary for main courses
+    #     if not lab_section.is_lab or main_section is None:
+    #         return True
+    #     lab_start_time = lab_section.relative_start
+    #     main_course_start_time = main_section.relative_start
+    #     difference_start_times = abs(lab_start_time - main_course_start_time)
+    #     max_diff = int(Constant.HOUR_TO_MINUTES / Constant.TIME_SEGMENT)
+    #     day_diff = abs(lab_section.day - main_section.day)
+
+    #     # Return True if on different day and within
+    #     # max difference of starting time, False otherwise
+    #     # return (day_diff > 1
+    #     #         and difference_start_times <= max_diff)
+
+    #     # now only check day diff > 1
+    #     return day_diff > 1
+
     @staticmethod
-    def is_lab_satisfied(lab_section: Section, main_section: Section) -> bool:
+    def is_lab_satisfied(sec: Section, config: Configuration) -> bool:
         """Return true if lab section's timing is satisfied,
         false otherwise
 
-        Args:
-            lab_section (Section): lab section
-            main_section (Section): lab section's corresponding main section
-
-        Returns:
-            bool:
         """
-        # Return True if not a lab -
-        # these checks won't be necessary for main courses
-        if not lab_section.is_lab or main_section is None:
+        # Return True if not a lab nor not linked to a lab
+
+        if not config.is_section_linked_to_lab(sec):
             return True
-        lab_start_time = lab_section.relative_start
-        main_course_start_time = main_section.relative_start
-        difference_start_times = abs(lab_start_time - main_course_start_time)
-        max_diff = int(Constant.HOUR_TO_MINUTES / Constant.TIME_SEGMENT)
-        day_diff = abs(lab_section.day - main_section.day)
+
+        linked = config.get_linked_section(sec)
+        # max_diff = int(Constant.HOUR_TO_MINUTES / Constant.TIME_SEGMENT)
+        day_diff = abs(sec.day - linked.day)
 
         # Return True if on different day and within
         # max difference of starting time, False otherwise
-        return (day_diff > 1
-                and difference_start_times <= max_diff)
+        return (day_diff > 1)
 
     # 5. Concurrent courses allow for one non-overlapped option
 

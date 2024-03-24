@@ -3,17 +3,6 @@ DAYS_NUM = 6
 DAY_HOURS = 12
 
 
-
-# relative time
-# morning = 9 - 12
-# afternoon = 12 - 17
-# evening = 17 - 21
-time_ranges2 = {
-    "morning": [0, 4],
-    "afternoon": [4, 7],
-    "evening": [7, 12]
-}
-
 # Segment time by 30 minutes
 # actual day is from 9:30 to 21:50
 # 12 hours, 20 minutes -> 740 minutes

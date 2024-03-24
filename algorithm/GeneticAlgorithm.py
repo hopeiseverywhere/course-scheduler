@@ -232,6 +232,10 @@ class GeneticAlgorithm:
         self._prototype = None  # Set reference to prototype to None
 
     @property
-    def result(self):
-        # Returns the best chromosomes in population
-        return self._chromosomes[self._best_chromosomes[0]]
+    def result(self) -> Schedule:
+        """Returns the best chromosomes in population
+        """
+        # calculate get fitness one more time to update criteria
+        res = self._chromosomes[self._best_chromosomes[0]]
+        res.get_fitness()
+        return res

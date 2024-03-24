@@ -41,7 +41,10 @@ class Schedule:
             self._configuration.number_of_sections * self.criteria_size,
             dtype=bool)
 
-        self.final_criteria: List[List[bool]] = []
+        # section id mapped to criteria
+        self.final_criteria: List[List[bool]] = [
+            [False] * self.criteria_size for _ in
+            range(self.configuration.number_of_sections)]
 
         # Initialize diversity value to 0
         self._diversity = 0.0
@@ -96,6 +99,7 @@ class Schedule:
             while linked is not None and abs(day - linked.day) <= 1:
                 # print("a here: ", section.course_num, section.prof_name, day, linked.day)
                 day = random.choice(section.pref_days)
+                self.configuration.clean_room_slot(section=linked)
                 if abs(day - linked.day >= 1):
                     return day
                 if abs(day - linked.day) < 1:
@@ -147,7 +151,11 @@ class Schedule:
                 if (day == conflict.day):
                     conflict_day = random.choice(conflict.pref_days)
                     conflict_time = self.rand_time(conflict)
+                    self.configuration.clean_room_slot(conflict)
                     conflict.set_day_and_time(conflict_day, conflict_time)
+                    
+                    self.configuration.set_room_slot(conflict.section_id,
+                                                         conflict.room_id, conflict_day, conflict.relative_start, conflict.duration)
 
             return day, time
 
@@ -182,7 +190,9 @@ class Schedule:
                 day = self.rand_day(section)
                 start_time = self.rand_time(section)
 
-        self.configuration.set_room_slot(sec_id, room_id, day, start_time, dur)
+        if not self.configuration.is_room_occupied(sec_id=section.section_id, dur=section.duration, day=day, relative_time=start_time, room_id=room_id):      
+            section.set_all(day, start_time, room_id) 
+            self.configuration.set_room_slot(sec_id, room_id, day, start_time, dur)
         return day, start_time, room_id
 
     def make_new_from_prototype(self, positions=None):
@@ -203,9 +213,9 @@ class Schedule:
 
         # determine a random position of a section
         for section in sections:
-            dur = section.duration
+            # dur = section.duration
             day, start_time, room_id = self.random_selection(section)
-            section.set_all(day, start_time, room_id, dur)
+            section.set_all(day, start_time, room_id)
             reservation = Reservation.get_reservation(
                 number_of_rooms, day, start_time, room_id)
 
@@ -374,7 +384,7 @@ class Schedule:
         # determine the position of the section
         if reservation is None:
             day, start_time, room_id = self.random_selection(section)
-            section.set_all(day, start_time, room_id, dur)
+            section.set_all(day, start_time, room_id)
 
             reservation = Reservation.get_reservation(number_of_rooms, day,
                                                       start_time,
@@ -426,8 +436,10 @@ class Schedule:
         # chromosome's score
         score = 0
         criteria = self._criteria
+        final_criteria = self.final_criteria
         configuration = self.configuration
         items = self._sections_table.items()
+        all_sections = self._sections_table.keys()
         slots = self._slots
         number_of_rooms = configuration.number_of_rooms
         day_size = Schedule.DAY_SLOTS * number_of_rooms
@@ -437,14 +449,19 @@ class Schedule:
         room_by_time_slot = configuration.room_by_time_slot
 
         # check criteria cna calculate scores for each section in schedule
+
+        # print("-----------get fitness--------------")
         for section, reservation_index in items:
+            
             section_score = 0
             reservation = Reservation.parse(reservation_index)
 
             # coordinates of time-space slot
-            day, time, room = (reservation.day,
-                               reservation.time, reservation.room_id)
-
+            # day, time, room = (reservation.day,
+            #                    reservation.time, reservation.room_id)
+            day = section.day
+            time = section.relative_start
+            room = section.room_id
             dur = section.duration
             section_id = section.section_id
 
@@ -452,18 +469,24 @@ class Schedule:
             room_overlapping = Criteria.is_room_overlapped(
                 room_slot=room_by_time_slot, sec_id=section_id, dur=dur, day=day, relative_time=time, room_id=room)
 
-            criteria[ci + 0] = not room_overlapping
+            # print("RO:", room_overlapping)
+            if room_overlapping:
+                criteria[ci + 0] = False
+                final_criteria[section_id][0] = False
+            else:
+                criteria[ci + 0] = True
+                final_criteria[section_id][0] = True
 
             # 2. does curr room have enough seats
             room = get_room_by_id(room)
             enough_seats = Criteria.is_seat_enough(room, section)
             criteria[ci + 1] = enough_seats
+            final_criteria[section_id][1] = enough_seats
 
             # 3. is professor overlap
-            time_id = day * day_size + time
-            prof_overlap = Criteria.is_prof_overlapped(slots, section,
-                                                       number_of_rooms, time_id)
+            prof_overlap = Criteria.is_prof_overlapped(section=section, sections=all_sections)
             criteria[ci + 2] = not prof_overlap
+            final_criteria[section_id][2] = not prof_overlap
 
             # 4. if professor preference time satisfied
             # both are relative time
@@ -474,27 +497,36 @@ class Schedule:
                                                         start_time,
                                                         end_time)
             criteria[ci + 3] = prof_satisfied
+            final_criteria[section_id][3] = prof_satisfied
 
             # 5. Check lab conditions met
             # lab_timing = Criteria.is_lab_satisfied(
             # section, self._sections_table)
-            if section.is_lab:
-                lab_timing = (
-                    Criteria.is_lab_satisfied(section,
-                                              configuration.get_main_section(
-                                                  section)))
-                criteria[ci + 4] = lab_timing
-            else:
-                criteria[ci + 4] = True
+            # if section.is_lab:
+            #     lab_timing = (
+            #         Criteria.is_lab_satisfied(section,
+            #                                   configuration.get_main_section(
+            #                                       section)))
+            #     criteria[ci + 4] = lab_timing
+            # else:
+            #     criteria[ci + 4] = True
+            # if self.configuration.is_section_linked_to_lab(section):
+            #     lab_timing = 
+            lab_timing = Criteria.is_lab_satisfied(section,
+                                                   configuration)
+            criteria[ci + 4] = lab_timing
+            final_criteria[section_id][4] = lab_timing
 
             # 6. Check concurrent courses
             conflict = (
                 Criteria.is_conflict(section, configuration.conflicts_dict))
             criteria[ci + 5] = not conflict
+            final_criteria[section_id][5] = not conflict
 
             # 7. Check day satisfied
             do = Criteria.is_day_satisfied(section.pref_days, day)
             criteria[ci + 6] = do
+            final_criteria[section_id][6] = do
 
             # if the constraint checks out, ci[i] must be true
             for i in range(len(self._objectives)):
@@ -507,8 +539,10 @@ class Schedule:
             ci += self.criteria_size
 
         # calculate fitness value based on score
-        self._fitness = score / len(criteria)
+        self._fitness = score / self.criteria_size / self.size
         self._score = score
+        # print(self.fitness)
+        
 
     def __eq__(self, other):
         if isinstance(other, Schedule):
@@ -573,12 +607,13 @@ class Schedule:
             print(num, ":", self.criteria[i:i + size])
             num += 1
 
-    def update_final_criteria(self):
-        size = self.criteria_size
+    def print_final_criteria(self):
+        
+        num = 0
+        for lis in self.final_criteria:
+            print(num, ":", lis)
+            num += 1
 
-        self.final_criteria = self.criteria.reshape(-1, size).tolist()
-        # print(self.final_criteria)
-        # num = 0
-        # for lis in self.final_criteria:
-        #     print(num, ":", lis)
-        #     num += 1
+    # def update_final_criteria(self):
+        # self.print_final_criteria()
+        # print("--------------------")

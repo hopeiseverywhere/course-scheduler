@@ -4,7 +4,7 @@ from collections import defaultdict
 
 
 class HtmlOutput:
-    ROOM_COLUMN_NUMBER = Constant.DAYS_NUM + 1
+    ROOM_COLUMN_NUMBER = Constant.DAYS_NUM + 2
     ROOM_ROW_NUMBER = Constant.DAY_SLOTS + 1
     COLOR1 = "#319378"
     COLOR2 = "#CE0000"
@@ -42,10 +42,10 @@ class HtmlOutput:
         "21:10 - 21:30", "21:30 - 21:50"
     )
 
-    WEEK_DAYS = ("MON", "TUE", "WED", "THU", "FRI", "SAT")
+    WEEK_DAYS = ("MON", "TUE", "WED", "THU", "FRI", "SAT", "ROOM CONFLICT")
 
     @staticmethod
-    def getCourseClass(cc, criteria, section_id):
+    def getCourseClass(cc, criteria, section_id, ro=False):
         COLOR1 = HtmlOutput.COLOR1
         COLOR2 = HtmlOutput.COLOR2
         CRITERIAS = HtmlOutput.CRITERIAS
@@ -53,9 +53,16 @@ class HtmlOutput:
 
         sb = [cc.course_num, "<br />", "ID " +
               str(cc.section_id), "<br />", cc.prof_name, "<br />"]
+        day_str = HtmlOutput.WEEK_DAYS[cc.day]
+        sb.append(f"{day_str}<br />")
         if cc.is_lab:
             sb.append("Is lab<br />")
-        print("here: ", section_id, criteria[section_id])
+        if ro:
+            pref_days = HtmlOutput.convert_to_days(cc.pref_days)
+            sb.append("Room Conflict<br />")
+            sb.append("Pref Days:<br />")
+            sb.append(f"{str(pref_days)} <br />")
+        # print("here: ", section_id, criteria[section_id])
         for i in range(length_CRITERIAS):
             sb.append("<span style='color:")
 
@@ -67,9 +74,11 @@ class HtmlOutput:
                 sb.append(COLOR2)
                 sb.append("' title='")
                 sb.append(HtmlOutput.FAIL_DESCR[i])
+            
             sb.append("'> ")
             sb.append(CRITERIAS[i])
             sb.append(" </span>")
+
 
         # print(sb)
         return sb
@@ -94,11 +103,11 @@ class HtmlOutput:
                 perfect_sections.append(section)
         
         HtmlOutput.generate_individual_section(solution, perfect_sections, time_table, slot_table)
-        # HtmlOutput.generate_individual_section(solution, conflict_sections, time_table, slot_table)
+        HtmlOutput.generate_individual_section(solution, conflict_sections, time_table, slot_table, True)
         return time_table
 
     @staticmethod
-    def generate_individual_section(solution, sections, time_table, slot_table):
+    def generate_individual_section(solution, sections, time_table, slot_table, ro=False):
         ROOM_COLUMN_NUMBER = HtmlOutput.ROOM_COLUMN_NUMBER
         getCourseClass = HtmlOutput.getCourseClass
         for section in sections:
@@ -106,6 +115,8 @@ class HtmlOutput:
 
             # coordinate of time-space slot
             dayId = section.day + 1
+            if ro:
+                dayId = 7
             periodId = section.relative_start + 1
             roomId = section.room_id
             dur = section.duration
@@ -130,9 +141,10 @@ class HtmlOutput:
             else:
                 room_schedule = ROOM_COLUMN_NUMBER * [None]
                 time_table[key] = room_schedule
-
+            
+            
             room_schedule[dayId] = "".join(
-                getCourseClass(section, solution.final_criteria, section.section_id))
+                getCourseClass(section, solution.final_criteria, section.section_id, ro))
 
         return time_table
 
@@ -166,6 +178,7 @@ class HtmlOutput:
         slot_table = defaultdict(list)
         time_table = HtmlOutput.generateTimeTable(
             solution, slot_table)  # Tuple[0] = time, Tuple[1] = roomId
+        
         if not slot_table or not time_table:
             return ""
 
@@ -227,3 +240,8 @@ class HtmlOutput:
         sb.append("</th>\n")
         sb.append("</tr>\n")
         return "".join(str(v) for v in sb)
+    
+    @staticmethod
+    def convert_to_days(int_list):
+        day_mapping = {0: 'M', 1: 'T', 2: 'W', 3: 'R', 4: 'F', 5: 'S'}
+        return [day_mapping[num] for num in int_list]

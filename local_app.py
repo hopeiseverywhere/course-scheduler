@@ -19,7 +19,7 @@ def local_app():
     configuration.parse_file(data)
 
     alg = GeneticAlgorithm(configuration)
-    alg.run(9999, 0.98)
+    alg.run(9999, 0.95)
 
     get_result(alg.result)
 
@@ -34,10 +34,11 @@ def local_app():
     print("\nCompleted in {} secs.\n".format(seconds))
     os.system("open " + temp_file_path)
 
-    alg.result.configuration.print_room_slot()
+    # print room mapped to day and time slot table
+    # alg.result.configuration.print_room_slot()
 
-    # configuration.print_lab_section_dict()
-
+    # print final criteria
+    # alg.result.print_final_criteria()
 
 if __name__ == '__main__':
     local_app()

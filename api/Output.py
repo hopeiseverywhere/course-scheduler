@@ -13,21 +13,30 @@ def get_result(solution: Schedule):
     """
     convert GA result to json and or local file
     """
-    # solution.print_criteria()
-    solution.update_final_criteria()
+    
     configuration = solution.configuration
     get_room_by_id = configuration.get_room_by_id
+    final_criteria = solution.final_criteria
 
     # Sort the list of sections so criteria satisfaction for each course can be easily checked
     sections = sorted(configuration.sections, key=lambda x: x.section_id)
     criteria_size = Criteria.criteria_size
 
     # Set whether all criteria satisfied for each course
-    for i in range(0, solution.criteria_length, criteria_size):
-        sections[i // criteria_size].set_criteria_met(all(solution.criteria[i:i + criteria_size]))
+    # for i in range(0, solution.criteria_length, criteria_size):
+    #     sections[i // criteria_size].set_criteria_met(all(solution.criteria[i:i + criteria_size]))
+    # for sec_id in range(0, configuration.number_of_sections):
+    #     for ci in range(0, solution.criteria_size):
+            
+
 
     sections_dict_list = []
     for section in sections:
+        sublist = final_criteria[section.section_id]
+        if False in sublist:
+            section.criteria_met = False
+        else:
+            section.criteria_met = True
         section.set_actual_time()
         room_id = section.room_id
         room_name = get_room_by_id(room_id).name

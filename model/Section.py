@@ -50,9 +50,28 @@ class Section:
     def assign_day(self):
         self.day = randrange(Constant.DAYS_NUM)
 
-    # Returns True if another section has same professor at same time
+    def section_overlaps(self, other: 'Section'):
+        """Return true if 2 section's time overlaps
+
+        """
+        if self.day != other.day or self.section_id == other.section_id:
+            return False
+        if self.relative_start is None or other.relative_start is None:
+            return False
+        curr_start = self.relative_start
+        curr_end = self.relative_start
+        comp_start = other.relative_start
+        comp_end = other.relative_start
+        return (comp_start <= curr_start <= comp_end or
+                comp_start <= curr_end <= comp_end)
+        
+
+    
     def professor_overlaps(self, other: 'Section'):
-        return self.prof_name == other.prof_name
+        """Returns True if another section has same professor at same time
+        """
+        if self.section_id != other.section_id and self.section_overlaps(other):
+            return self.prof_name == other.prof_name
 
     def __hash__(self):
         return hash(self.section_id)
@@ -87,7 +106,7 @@ class Section:
         self.day = day
         self.relative_start = time
 
-    def set_all(self, day, time, room_name, duration):
+    def set_all(self, day, time, room_id):
         """
         Set day, time, room to a section that has finished random generation
         :param day:
@@ -97,10 +116,7 @@ class Section:
         """
         self.day = day
         self.relative_start = time
-        # convert relative time to actual time
-        # self.start_time = self.time_slot_to_real_time(time)
-        # self.end_time = self.time_slot_to_real_time(time + duration)
-        self.room_id = room_name
+        self.room_id = room_id
 
     def set_criteria_met(self, criteria_met):
         self.criteria_met = criteria_met

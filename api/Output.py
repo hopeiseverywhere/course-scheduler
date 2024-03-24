@@ -40,4 +40,5 @@ def get_result(solution: Schedule):
         json_file.write(json_string)
     print("JSON data saved to", file_path)
     print("Final Fitness: ",solution.fitness)
+    print("Fitness = {} / {}".format(solution.score, solution.criteria_length))
     return json_string

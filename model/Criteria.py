@@ -10,7 +10,7 @@ from model.Configuration import Configuration
 class Criteria:
     # 7 criteria for calculating fitness
     # 0 - 1, 0 is more important, 1 is not important
-    weights = [0.2, 0.5, 0.2, 0.75, 0.5, 0.5, 0.2]
+    weights = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
     criteria_size = len(weights)
 
     # 0. check for room overlapping of classes

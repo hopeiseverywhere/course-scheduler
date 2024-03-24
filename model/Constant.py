@@ -1,7 +1,7 @@
-# segment time by an hour
-DAYS_NUM = 5
+
+DAYS_NUM = 6
 DAY_HOURS = 12
-# DAY_START_HOUR = 9
+
 
 
 # relative time
@@ -63,6 +63,6 @@ lab_main_courses = {
 # does not conflict with the other
 concurrent_courses = {
     "5001": "5002", "5002": "5001",
-    "5004": "5008", "5008": "5004",
-    "5010": "5800", "5800": "5010"
+    "5004": "5008", "5008": "5004"
 }
+# "5010": "5800", "5800": "5010"

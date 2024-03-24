@@ -12,6 +12,8 @@ def get_result(solution: Schedule):
     """
     convert GA result to json and or local file
     """
+    # solution.print_criteria()
+    solution.update_final_criteria()
     configuration = solution.configuration
     get_room_by_id = configuration.get_room_by_id
     sections = configuration.sections

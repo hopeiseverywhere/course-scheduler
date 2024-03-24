@@ -20,6 +20,10 @@ class Configuration:
         # key: capacity, range from 5 to 100 inclusive, increment by 5
         # value: a list of rooms that can >= key
         self.rooms_by_capacity = {}
+
+        # key : room id
+        # values = [6 days]:[all time slots]
+        self.room_by_time_slot: Dict[int, Dict[int, List[bool]]] = {}
         # parsed sections
         self._sections = []
         # key lab section : value main course section
@@ -50,7 +54,7 @@ class Configuration:
             time_range.append(start)
             time_range.append(end)
             section.pref_time_range = time_range
-            # print(section.Preference_range)
+            # print(section.pref_time_range)
 
     def init_room_by_capacity(self):
         """
@@ -87,17 +91,25 @@ class Configuration:
                     number_of_seats=room_data['size']
                 )
                 self._rooms[room.id] = room
+                # update room by time slot
+                self.room_by_time_slot[room.id] = {}
+                for i in range(Constant.DAYS_NUM + 1):
+                    self.room_by_time_slot[room.id][i] = [
+                                                             False] * Constant.DAY_SLOTS
             elif 'section' in item:
                 section_data = item['section']
                 section = Section(
-                    course=section_data['course'],
+                    course_num=section_data['course'],
+                    course_name="",
                     professor=section_data['professor'],
                     pref_time=section_data['pref_time'],
+                    pref_days=section_data['pref_day'],
                     is_lab=section_data.get('is_lab'),
                     duration=int(
                         section_data['duration'] / Constant.TIME_SEGMENT),
                     students=section_data['students']
                 )
+                # print(section_data['duration'] / Constant.TIME_SEGMENT)
                 self._sections.append(section)
                 self._sections_by_id[section.section_id] = section
 
@@ -113,6 +125,7 @@ class Configuration:
         self.init_lab_section_dict()
         self.init_non_concurrent_dict()
         self._isEmpty = False
+        # print(self.room_by_time_slot[0])
 
     def init_lab_section_dict(self):
         """lab section : main section
@@ -122,7 +135,7 @@ class Configuration:
         # load from constant
         for key in Constant.lab_main_courses.keys():
             for lab in self.sections:
-                if lab.course_name == key and lab.section_id not in lab_set:
+                if lab.course_num == key and lab.section_id not in lab_set:
                     lab_set.add(lab)
                     self.lab_main_course_sec[lab] = None
                     self.lab_main_course_id[lab.section_id] = None
@@ -132,8 +145,8 @@ class Configuration:
             for section in self.sections:
                 if (section.prof_name == lab.prof_name and
                     Constant.lab_main_courses[
-                        lab.course_name] == section.course_name and
-                        section.section_id not in main_set):
+                        lab.course_num] == section.course_num and
+                    section.section_id not in main_set):
                     main_set.add(section)
                     self.lab_main_course_sec[lab] = section
                     self.lab_main_course_id[lab.section_id] = section.section_id
@@ -151,7 +164,7 @@ class Configuration:
     def print_lab_section_dict(self):
         print("{:<20} {}".format("Main section", "Day time"))
         for lab, main_course in self.lab_main_course_sec.items():
-            print("{:<20} {} {}".format(main_course.course_name,
+            print("{:<20} {} {}".format(main_course.course_num,
                                         main_course.day,
                                         main_course.start_time))
 
@@ -160,12 +173,13 @@ class Configuration:
         Map a course to its conflict courses
         """
         for section in self.sections:
-            if section.course_name in Constant.concurrent_courses.keys():
+            if section.course_num in Constant.concurrent_courses.keys():
                 self.conflicts_dict[section] = []
 
         for section in self.conflicts_dict.keys():
             for other_section in self.sections:
-                if other_section.course_name == Constant.concurrent_courses[section.course_name]:
+                if other_section.course_num == Constant.concurrent_courses[
+                    section.course_num]:
                     self.conflicts_dict[section].append(other_section)
 
         # test out put ------------------
@@ -231,6 +245,65 @@ class Configuration:
         if section_id in self._sections_by_id:
             return self._sections_by_id.get(section_id)
         return None
+
+    def is_room_occupied(self, room_id: int, day: int,
+        relative_time: int) -> bool:
+        """Given room id and a relative start time,
+        check whether the room is occupied
+
+        Args:
+            room_id (int): _description_
+            relative_time (int): _description_
+
+        Returns:
+            bool: _description_
+        """
+
+        if self.room_by_time_slot[room_id][day][relative_time] or \
+            self.room_by_time_slot[room_id][day][relative_time + 2]:
+            return True
+        return False
+    
+    def is_section_in_concurrent(self, section: Section) -> bool:
+        if self.conflicts_dict.get(section) is not None:
+            return True
+        return False
+    
+
+    def set_room_slot(self, room_id: int, day: int, relative_start: int,
+        dur: int):
+        """If a section randomly select day, time and room, make that room occupied
+
+        Args:
+            room_id (int): _description_
+            day (int): _description_
+            relative_start (int): _description_
+            dur (int): _description_
+        """
+        for i in range(relative_start, relative_start + dur):
+            self.room_by_time_slot[room_id][day][i] = True
+        # self.print_room_slot("set room",room_id, day)
+
+    def clean_room_slot(self, section: Section):
+        """Clean the previous selection
+
+        Args:
+            section (Section): _description_
+        """
+
+        if section.room_id is not None:
+
+            day = section.day
+            room_id = section.room_id
+            dur = section.duration
+            relative_start = section.relative_start
+
+            for i in range(relative_start, relative_start + dur):
+                self.room_by_time_slot[room_id][day][i] = False
+            # self.print_room_slot("clean room",room_id, day)
+
+    def print_room_slot(self, msg: str, room_id: int, day: int):
+        print(msg, room_id, self.room_by_time_slot[room_id][day])
 
     @staticmethod
     def round_down_to_nearest_five(number: int) -> int:

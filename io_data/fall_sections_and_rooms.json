@@ -1,11 +1,11 @@
-data = [
+[
     {
         "section": {
             "course": "5001",
             "professor": "Tony Mullen",
             "pref_time": ["morning"],
             "pref_day": [0, 1, 2, 3, 4],
-            "is_lab": False,
+            "is_lab": false,
             "duration": 200,
             "students": 40
         }
@@ -14,9 +14,9 @@ data = [
         "section": {
             "course": "5003",
             "professor": "Tony Mullen",
-            "pref_time": ["morning"],
+            "pref_time": ["morning "],
             "pref_day": [0, 1, 2, 3, 4],
-            "is_lab": True,
+            "is_lab": true,
             "duration": 100,
             "students": 40
         }
@@ -27,7 +27,7 @@ data = [
             "professor": "Sarita Singh",
             "pref_time": ["morning", "afternoon"],
             "pref_day": [0, 1, 2, 3, 4],
-            "is_lab": False,
+            "is_lab": false,
             "duration": 200,
             "students": 40
         }
@@ -38,7 +38,7 @@ data = [
             "professor": "Sarita Singh",
             "pref_time": ["morning", "afternoon"],
             "pref_day": [0, 1, 2, 3, 4],
-            "is_lab": True,
+            "is_lab": true,
             "duration": 100,
             "students": 40
         }
@@ -49,7 +49,7 @@ data = [
             "professor": "Aditya Mishra",
             "pref_time": ["morning", "afternoon"],
             "pref_day": [0, 1, 2, 3, 4],
-            "is_lab": False,
+            "is_lab": false,
             "duration": 200,
             "students": 40
         }
@@ -60,7 +60,7 @@ data = [
             "professor": "Aditya Mishra",
             "pref_time": ["morning", "afternoon"],
             "pref_day": [0, 1, 2, 3, 4],
-            "is_lab": True,
+            "is_lab": true,
             "duration": 100,
             "students": 40
         }
@@ -71,7 +71,7 @@ data = [
             "professor": "Oscar Veliz",
             "pref_time": ["morning", "afternoon"],
             "pref_day": [0, 1, 2, 3, 4],
-            "is_lab": False,
+            "is_lab": false,
             "duration": 200,
             "students": 60
         }
@@ -82,7 +82,7 @@ data = [
             "professor": "Steve Shafer",
             "pref_time": ["evening"],
             "pref_day": [1],
-            "is_lab": False,
+            "is_lab": false,
             "duration": 200,
             "students": 60
         }
@@ -93,7 +93,7 @@ data = [
             "professor": "Tamara Bonaci",
             "pref_time": ["morning", "afternoon"],
             "pref_day": [0, 1, 2, 3, 4],
-            "is_lab": False,
+            "is_lab": false,
             "duration": 200,
             "students": 40
         }
@@ -104,7 +104,7 @@ data = [
             "professor": "Chris Geeng",
             "pref_time": ["evening"],
             "pref_day": [0, 1, 2, 3, 4],
-            "is_lab": False,
+            "is_lab": false,
             "duration": 200,
             "students": 40
         }
@@ -115,7 +115,7 @@ data = [
             "professor": "Tamara Bonaci",
             "pref_time": ["morning", "afternoon"],
             "pref_day": [0, 1, 2, 3, 4],
-            "is_lab": True,
+            "is_lab": true,
             "duration": 100,
             "students": 40
         }
@@ -126,7 +126,7 @@ data = [
             "professor": "Chris Geeng",
             "pref_time": ["evening"],
             "pref_day": [0, 1, 2, 3, 4],
-            "is_lab": True,
+            "is_lab": true,
             "duration": 100,
             "students": 40
         }
@@ -137,7 +137,7 @@ data = [
             "professor": "Sarita Singh",
             "pref_time": ["morning", "afternoon"],
             "pref_day": [1, 2, 3],
-            "is_lab": False,
+            "is_lab": false,
             "duration": 200,
             "students": 40
         }
@@ -148,7 +148,7 @@ data = [
             "professor": "Sarita Singh",
             "pref_time": ["morning", "afternoon"],
             "pref_day": [1, 2, 3],
-            "is_lab": True,
+            "is_lab": true,
             "duration": 100,
             "students": 40
         }
@@ -159,7 +159,7 @@ data = [
             "professor": "Divya Chaudhary",
             "pref_time": ["morning", "afternoon"],
             "pref_day": [0, 1, 2, 3, 4],
-            "is_lab": False,
+            "is_lab": false,
             "duration": 200,
             "students": 40
         }
@@ -170,7 +170,7 @@ data = [
             "professor": "Divya Chaudhary",
             "pref_time": ["morning", "afternoon"],
             "pref_day": [0, 1, 2, 3, 4],
-            "is_lab": True,
+            "is_lab": true,
             "duration": 100,
             "students": 40
         }
@@ -181,7 +181,7 @@ data = [
             "professor": "Brian Cross",
             "pref_time": ["evening"],
             "pref_day": [2],
-            "is_lab": False,
+            "is_lab": false,
             "duration": 200,
             "students": 40
         }
@@ -192,7 +192,7 @@ data = [
             "professor": "Brian Cross",
             "pref_time": ["evening"],
             "pref_day": [0],
-            "is_lab": True,
+            "is_lab": true,
             "duration": 100,
             "students": 40
         }
@@ -203,7 +203,7 @@ data = [
             "professor": "Richard Cobbe",
             "pref_time": ["morning", "afternoon"],
             "pref_day": [2, 3, 4],
-            "is_lab": False,
+            "is_lab": false,
             "duration": 200,
             "students": 40
         }
@@ -214,7 +214,7 @@ data = [
             "professor": "Richard Cobbe",
             "pref_time": ["morning", "afternoon"],
             "pref_day": [2, 3, 4],
-            "is_lab": True,
+            "is_lab": true,
             "duration": 100,
             "students": 40
         }
@@ -225,7 +225,7 @@ data = [
             "professor": "Zhifeng Sun",
             "pref_time": ["evening"],
             "pref_day": [4],
-            "is_lab": False,
+            "is_lab": false,
             "duration": 200,
             "students": 60
         }
@@ -236,7 +236,7 @@ data = [
             "professor": "Hyonho Lee",
             "pref_time": ["evening"],
             "pref_day": [0],
-            "is_lab": False,
+            "is_lab": false,
             "duration": 200,
             "students": 60
         }
@@ -247,7 +247,7 @@ data = [
             "professor": "Oscar Veliz",
             "pref_time": ["morning", "afternoon"],
             "pref_day": [0, 1, 2, 3, 4],
-            "is_lab": False,
+            "is_lab": false,
             "duration": 200,
             "students": 40
         }
@@ -258,7 +258,7 @@ data = [
             "professor": "Richard Cobbe",
             "pref_time": ["morning", "afternoon"],
             "pref_day": [2, 3, 4],
-            "is_lab": False,
+            "is_lab": false,
             "duration": 200,
             "students": 40
         }
@@ -269,7 +269,7 @@ data = [
             "professor": "Richard Cobbe",
             "pref_time": ["morning", "afternoon"],
             "pref_day": [2, 3, 4],
-            "is_lab": False,
+            "is_lab": false,
             "duration": 200,
             "students": 40
         }
@@ -280,7 +280,7 @@ data = [
             "professor": "Bruce Chhay",
             "pref_time": ["evening"],
             "pref_day": [3],
-            "is_lab": False,
+            "is_lab": false,
             "duration": 200,
             "students": 60
         }
@@ -291,7 +291,7 @@ data = [
             "professor": "Bruce Maxwell",
             "pref_time": ["afternoon"],
             "pref_day": [2, 3, 4],
-            "is_lab": False,
+            "is_lab": false,
             "duration": 200,
             "students": 30
         }
@@ -302,7 +302,7 @@ data = [
             "professor": "Chris Geeng",
             "pref_time": ["morning", "afternoon"],
             "pref_day": [0, 1, 2, 3, 4],
-            "is_lab": False,
+            "is_lab": false,
             "duration": 200,
             "students": 30
         }
@@ -313,7 +313,7 @@ data = [
             "professor": "Mark Bonicillo ",
             "pref_time": ["evening"],
             "pref_day": [0, 1, 2],
-            "is_lab": False,
+            "is_lab": false,
             "duration": 200,
             "students": 60
         }
@@ -324,7 +324,7 @@ data = [
             "professor": "Alex Lash",
             "pref_time": ["afternoon"],
             "pref_day": [5],
-            "is_lab": False,
+            "is_lab": false,
             "duration": 200,
             "students": 60
         }
@@ -335,7 +335,7 @@ data = [
             "professor": "Oscar Veliz",
             "pref_time": ["morning", "afternoon"],
             "pref_day": [0, 1, 2, 3, 4],
-            "is_lab": False,
+            "is_lab": false,
             "duration": 200,
             "students": 45
         }
@@ -346,7 +346,7 @@ data = [
             "professor": "Aditya Mishra",
             "pref_time": ["morning", "afternoon"],
             "pref_day": [0, 1, 2, 3, 4],
-            "is_lab": False,
+            "is_lab": false,
             "duration": 200,
             "students": 45
         }
@@ -357,7 +357,7 @@ data = [
             "professor": "Hunter Jorgensen",
             "pref_time": ["evening"],
             "pref_day": [3],
-            "is_lab": False,
+            "is_lab": false,
             "duration": 200,
             "students": 60
         }
@@ -368,7 +368,7 @@ data = [
             "professor": "Sarita Singh",
             "pref_time": ["morning", "afternoon"],
             "pref_day": [1, 2, 3],
-            "is_lab": False,
+            "is_lab": false,
             "duration": 200,
             "students": 40
         }
@@ -379,7 +379,7 @@ data = [
             "professor": "Shanu Sushmita",
             "pref_time": ["morning", "afternoon"],
             "pref_day": [0, 1, 2, 3, 4],
-            "is_lab": False,
+            "is_lab": false,
             "duration": 200,
             "students": 30
         }
@@ -390,7 +390,7 @@ data = [
             "professor": "Divya Chaudhary",
             "pref_time": ["morning", "afternoon"],
             "pref_day": [0, 1, 2, 3, 4],
-            "is_lab": False,
+            "is_lab": false,
             "duration": 200,
             "students": 20
         }
@@ -401,7 +401,7 @@ data = [
             "professor": "Shanu Sushmita",
             "pref_time": ["morning", "afternoon"],
             "pref_day": [0, 1, 2, 3, 4],
-            "is_lab": False,
+            "is_lab": false,
             "duration": 200,
             "students": 20
         }
@@ -412,7 +412,7 @@ data = [
             "professor": "Yifan Hu",
             "pref_time": ["morning", "afternoon"],
             "pref_day": [2, 3, 4],
-            "is_lab": False,
+            "is_lab": false,
             "duration": 200,
             "students": 30
         }
@@ -423,7 +423,7 @@ data = [
             "professor": "Divya Chaudhary",
             "pref_time": ["morning", "afternoon"],
             "pref_day": [1, 2],
-            "is_lab": False,
+            "is_lab": false,
             "duration": 200,
             "students": 30
         }
@@ -434,7 +434,7 @@ data = [
             "professor": "Theo Skoteiniotis",
             "pref_time": ["evening"],
             "pref_day": [1, 2],
-            "is_lab": False,
+            "is_lab": false,
             "duration": 200,
             "students": 30
         }
@@ -445,7 +445,7 @@ data = [
             "professor": "Aditya Mishra",
             "pref_time": ["morning", "afternoon"],
             "pref_day": [0, 1, 2, 3, 4],
-            "is_lab": False,
+            "is_lab": false,
             "duration": 200,
             "students": 60
         }
@@ -456,7 +456,7 @@ data = [
             "professor": "Vishal Rajpal",
             "pref_time": ["evening"],
             "pref_day": [4],
-            "is_lab": False,
+            "is_lab": false,
             "duration": 200,
             "students": 45
         }
@@ -467,7 +467,7 @@ data = [
             "professor": "Tamara Bonaci",
             "pref_time": ["morning", "afternoon"],
             "pref_day": [0, 1, 2, 3, 4],
-            "is_lab": False,
+            "is_lab": false,
             "duration": 200,
             "students": 35
         }
@@ -478,7 +478,7 @@ data = [
             "professor": "Tamara Bonaci",
             "pref_time": ["morning", "afternoon"],
             "pref_day": [0, 1, 2, 3, 4],
-            "is_lab": False,
+            "is_lab": false,
             "duration": 200,
             "students": 30
         }

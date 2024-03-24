@@ -4,29 +4,26 @@ from model import Constant
 from model.Room import Room
 from model.Section import Section
 from model.Reservation import Reservation
+from model.Configuration import Configuration
 
 
 class Criteria:
-    # 4 criteria for calculating fitness
-    # Weights allow for partial credit when a criteria fails.
-    # 1.0 -> Does not matter if criteria fails. 0.0 -> criteria must be satisfied (hard constraint).
-    # Fractional weights are used to give "credit" for criteria that fail. To be used for preferences
-    # Usage: set weights so that minimum satisfaction in (99.0, 100], and partial credit can push above min threshold
-    # TODO Note about above: currently can only get 0.9901960784313726 at best.
-    # Indexes: [room overlapped, enough seats, professor overlap, professor time, lab pair timing, partner course]
-    weights = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    # 7 criteria for calculating fitness
+    # 0 - 1, 0 is more important, 1 is not important
+    weights = [0.2, 0.5, 0.2, 0.75, 0.5, 0.5, 0.2]
     criteria_size = len(weights)
 
     # 0. check for room overlapping of classes
     @staticmethod
-    def is_room_overlapped(slots: List[List[Section]], reservation: Reservation,
-        dur: int):
+    def is_room_overlapped(room_by_time_slot: Dict[int, Dict[int, List[bool]]],
+                           room_id: int, day: int, relative_start: int):
         """
         Check if there is any room overlap for the given reservation
         """
-        reservation_index = hash(reservation)
-        sections = slots[reservation_index: reservation_index + dur]
-        return any(True for slot in sections if len(slot) > 1)
+        if (room_by_time_slot[room_id][day][relative_start] is True
+                or room_by_time_slot[room_id][day][relative_start + 2] is True):
+            return True
+        return False
 
     # 1. check seat enough
     @staticmethod
@@ -58,21 +55,23 @@ class Criteria:
 
     # 3. professor satisfied
     @staticmethod
-    def is_prof_satisfied(section: Section, start_time: int, end_time: int):
-        return (start_time >= section.pref_time_range[0] and
-                end_time <= section.pref_time_range[1])
+    def is_prof_satisfied(pref_time_range: List[int], start_time: int,
+                          end_time: int):
+        return (start_time >= pref_time_range[0] and
+                end_time <= pref_time_range[1])
 
+    # 4. Lab timings satisfied
     @staticmethod
     def is_lab_satisfied(lab_section: Section, main_section: Section) -> bool:
         """Return true if lab section's timing is satisfied,
-        false other wise
+        false otherwise
 
         Args:
             lab_section (Section): lab section
             main_section (Section): lab section's corresponding main section
 
         Returns:
-            bool: 
+            bool:
         """
         # Return True if not a lab -
         # these checks won't be necessary for main courses
@@ -89,14 +88,17 @@ class Criteria:
         return (day_diff > 1
                 and difference_start_times <= max_diff)
 
+    # 5. Concurrent courses allow for one non-overlapped option
+
     @staticmethod
     def is_conflict(section: Section,
-        conflicts_dict: Dict[Section, List[Section]]) -> bool:
+                    conflicts_dict: Dict[Section, List[Section]]) -> bool:
         """Check if current section has a concurrent conflict section
 
         Args:
             section (Section): current section
-            conflicts_dict (Dict[Section, List[Section]]): a dictionary in configuration that stores all concurrent conflict sections data
+            conflicts_dict (Dict[Section, List[Section]]): a dictionary in
+            configuration that stores all concurrent conflict sections data
 
         Returns:
             bool: if yes, return true, otherwise return false
@@ -128,6 +130,13 @@ class Criteria:
         # Else return true
         return non_conflicting_partners < len(conflict_sections)
 
+    # 6. is day satisfied
+    @staticmethod
+    def is_day_satisfied(pref_days: List[int], day: int) -> bool:
+        if day in pref_days:
+            return True
+        return False
+
     @staticmethod
     def is_time_overlap(section1: Section, section2: Section) -> bool:
         """
@@ -141,3 +150,7 @@ class Criteria:
         comp_end = section2.relative_start
         return (comp_start <= curr_start <= comp_end or
                 comp_start <= curr_end <= comp_end)
+
+    @staticmethod
+    def is_time_and_day_overlap(section1: Section, section2: Section) -> bool:
+        return Criteria.is_time_overlap(section1, section2) and section1.day == section2.day

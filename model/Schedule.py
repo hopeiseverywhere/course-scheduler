@@ -41,6 +41,8 @@ class Schedule:
             self._configuration.number_of_sections * self.criteria_size,
             dtype=bool)
 
+        self.final_criteria: List[List[bool]] = []
+
         # Initialize diversity value to 0
         self._diversity = 0.0
         # Initialize rank value to 0
@@ -75,41 +77,106 @@ class Schedule:
                 self._converted_objectives = other.converted_objectives[:]
             return self
 
+    def rand_day(self, section: Section) -> int:
+        """
+        Make a random selection of (day)
+        """
+        # if the current section is a lab
+        # random select day based on its main course
+
+        day = random.choice(section.pref_days)
+        if section.is_lab:
+            main_course = self._configuration.get_main_section(
+                section)
+            while abs(day == main_course.day):
+                print("a here: ", section.course_num, section.prof_name, day, main_course.day)
+
+                day = random.choice(section.pref_days)
+                if abs(day - main_course.day >= 1):
+                    return day
+                if abs(day - main_course.day) < 1:
+                    self.configuration.clean_room_slot(main_course)
+                    conflict_day = random.choice(main_course.pref_days)
+                    main_course.set_day(conflict_day)
+                    self.configuration.set_room_slot(
+                        main_course.room_id, conflict_day, main_course.relative_start, main_course.duration)
+                    if abs(day - main_course.day >= 1):
+                        return day
+
+        return day
+
+    def rand_time(self, section: Section) -> int:
+        """
+        Make a random selection of a relative start time
+        """
+        
+        pref_range = section.pref_time_range
+        duration = section.duration
+        
+        if duration > pref_range[1]:
+            # for professor only prefer morning time slot
+            seed = randrange(2, 4)
+            # start_time = randrange(pref_range[0], pref_range[1] + seed)
+            start_time = randrange(pref_range[0], pref_range[0] + seed)
+        else:
+            start_time = randrange(pref_range[0], pref_range[1] + 1 - duration)
+        
+        # actively assign those who is ok with evening sections evening first
+        seed = randrange(2)
+        if "evening" in section.pref_time and seed == 1:
+            start_time = pref_range[1] - duration
+
+        return start_time
+
+    def check_conflict(self, section: Section):
+
+        # make sure no conflict with its conflict section
+        # if section in self.configuration.conflicts_dict.keys():
+        day = self.rand_day(section)
+        time = self.rand_time(section)
+        for conflict in self.configuration.conflicts_dict[section]:
+            while Criteria.is_time_and_day_overlap(section, conflict):
+                print("b here")
+                day = self.rand_day(section)
+                time = self.rand_time(section)
+                if (day == conflict.day):
+                    conflict_day = random.choice(conflict.pref_days)
+                    conflict_time = self.rand_time(conflict)
+                    conflict.set_day_and_time(conflict_day, conflict_time)
+
+            return day, time
+
     def random_selection(self, section: Section):
         """
         Make random selection of (day, time, room_id) from a give section
         :param section:
         :return: tuple (day, start_time, room_id)
         """
-
+        self.configuration.clean_room_slot(section)
         dur = section.duration
-        pref_range = section.pref_time_range
+
         number_of_students = section.number_of_students
         number_of_students = Configuration.round_down_to_nearest_five(
             number_of_students)
 
+        day = self.rand_day(section)
+        start_time = self.rand_time(section)
+        # select a room with enough size and empty
         room_id = random.choice(
             self._configuration.rooms_by_capacity[number_of_students])
-        start_time = randrange(pref_range[1] - dur)
-        # if the current section is a lab
-        # random select day based on its main course
-        day = randrange(Schedule.DAY_NUM)
-        if section.is_lab:
-            main_course = self._configuration.get_main_section(
-                section)
-            while abs(day - main_course.day) <= 1:
-                day = randrange(Schedule.DAY_NUM)
+        while self.configuration.is_room_occupied(room_id, day, start_time):
+            # print("here")
+            room_id = random.choice(
+                self._configuration.rooms_by_capacity[number_of_students])
+            # if section has a avoid concurrent section
+            if self.configuration.is_section_in_concurrent(section):
+                day, start_time = self.check_conflict(section)
+            else:
+                day = self.rand_day(section)
+                start_time = self.rand_time(section)
 
-        # make sure no conflict with its conflict section
-        if section in self.configuration.conflicts_dict.keys():
-            for conflict in self.configuration.conflicts_dict[section]:
-                while day == conflict.day:
-                    day = randrange(Schedule.DAY_NUM)
-
-        # print(day, start_time, room_id)
+        self.configuration.set_room_slot(room_id, day, start_time, dur)
         return day, start_time, room_id
-
-
 
     def make_new_from_prototype(self, positions=None):
         """
@@ -150,78 +217,78 @@ class Schedule:
 
         return new_chromosome
 
-    def crossover1(self, parent: 'Schedule', number_of_crossover_points,
-        crossover_prob):
-        """
-        Performs crossover operation using to
-        chromosomes and returns pointer to offspring
-        :param parent:
-        :param number_of_crossover_points:
-        :param crossover_prob:
-        :return:
-        """
-        # check probability of crossover operation
-        if randrange(100) > crossover_prob:
-            # no crossover, just copy first parent
-            return self.copy(self, False)
-
-        # new chromosome object, copy chromosome setup
-        offspring: Schedule = self.copy(self, True)
-        offspring_sections_table, offspring_slots = (
-            offspring._sections_table, offspring._slots)
-
-        sections_table = self._sections_table
-        course_sections = tuple(sections_table.keys())
-        parent_sections_table = parent.sections_table
-        parent_sections = tuple(parent.sections_table.keys())
-
-        # number of sections
-        size = self.size
-
-        cp = size * [False]
-
-        # determine crossover point (randomly)
-        for i in range(number_of_crossover_points, 0, -1):
-            check_point = False
-            while not check_point:
-                p = randrange(size)
-                if not cp[p]:
-                    cp[p] = check_point = True
-
-        # make new code by combining parent codes
-        first = randrange(2) == 0
-
-        for i in range(size):
-            if first:
-                selected_section = course_sections[i]
-                reservation_index = sections_table[selected_section]
-                # insert section from first parent
-                # into new chromosome's class table
-            else:
-                selected_section = parent_sections[i]
-                reservation_index = parent_sections_table[selected_section]
-                # insert section from second parent
-                # into new chromosome's class table
-
-            dur = selected_section.duration
-            offspring_sections_table[selected_section] = reservation_index
-            # all time-space slots of class are copied
-            for j in range(dur - 1, -1, -1):
-                offspring_slots[reservation_index + j].append(
-                    selected_section)
-
-            # crossover point
-            if cp[i]:
-                # change source chromosome
-                first = not first
-
-        offspring.get_fitness()
-
-        # return smart pointer to offspring
-        return offspring
+    # def crossover1(self, parent: 'Schedule', number_of_crossover_points,
+    #                crossover_prob):
+    #     """
+    #     Performs crossover operation using to
+    #     chromosomes and returns pointer to offspring
+    #     :param parent:
+    #     :param number_of_crossover_points:
+    #     :param crossover_prob:
+    #     :return:
+    #     """
+    #     # check probability of crossover operation
+    #     if randrange(100) > crossover_prob:
+    #         # no crossover, just copy first parent
+    #         return self.copy(self, False)
+    #
+    #     # new chromosome object, copy chromosome setup
+    #     offspring: Schedule = self.copy(self, True)
+    #     offspring_sections_table, offspring_slots = (
+    #         offspring._sections_table, offspring._slots)
+    #
+    #     sections_table = self._sections_table
+    #     course_sections = tuple(sections_table.keys())
+    #     parent_sections_table = parent.sections_table
+    #     parent_sections = tuple(parent.sections_table.keys())
+    #
+    #     # number of sections
+    #     size = self.size
+    #
+    #     cp = size * [False]
+    #
+    #     # determine crossover point (randomly)
+    #     for i in range(number_of_crossover_points, 0, -1):
+    #         check_point = False
+    #         while not check_point:
+    #             p = randrange(size)
+    #             if not cp[p]:
+    #                 cp[p] = check_point = True
+    #
+    #     # make new code by combining parent codes
+    #     first = randrange(2) == 0
+    #
+    #     for i in range(size):
+    #         if first:
+    #             selected_section = course_sections[i]
+    #             reservation_index = sections_table[selected_section]
+    #             # insert section from first parent
+    #             # into new chromosome's class table
+    #         else:
+    #             selected_section = parent_sections[i]
+    #             reservation_index = parent_sections_table[selected_section]
+    #             # insert section from second parent
+    #             # into new chromosome's class table
+    #
+    #         dur = selected_section.duration
+    #         offspring_sections_table[selected_section] = reservation_index
+    #         # all time-space slots of class are copied
+    #         for j in range(dur - 1, -1, -1):
+    #             offspring_slots[reservation_index + j].append(
+    #                 selected_section)
+    #
+    #         # crossover point
+    #         if cp[i]:
+    #             # change source chromosome
+    #             first = not first
+    #
+    #     offspring.get_fitness()
+    #
+    #     # return smart pointer to offspring
+    #     return offspring
 
     def crossover(self, parent: 'Schedule', number_of_crossover_points,
-        crossover_prob):
+                  crossover_prob):
         """
         Performs crossover operation using to
         chromosomes and returns pointer to offspring
@@ -297,7 +364,7 @@ class Schedule:
         return offspring
 
     def repair_crossover(self, appeared: Set[int], section: Section,
-        slots: List[List[Section]]):
+                         slots: List[List[Section]]):
         if section.section_id in appeared:
             return None
         number_of_rooms = self._configuration.number_of_rooms
@@ -334,7 +401,7 @@ class Schedule:
                         slots[reservation_idx + j].append(linked)
 
     def repair(self, section: Section, reservation_idx:
-    int, reservation: Reservation):
+               int, reservation: Reservation):
         # extract relevant prams and constant
         number_of_rooms = self._configuration.number_of_rooms
         # DAY_HOURS, DAYS_NUM = Constant.DAY_SLOTS, Constant.DAYS_NUM
@@ -412,6 +479,7 @@ class Schedule:
 
         ci = 0
         get_room_by_id = configuration.get_room_by_id
+        room_by_time_slot = configuration.room_by_time_slot
 
         # check criteria cna calculate scores for each section in schedule
         for section, reservation_index in items:
@@ -425,8 +493,9 @@ class Schedule:
             section_id = section.section_id
 
             # 1. check room overlapping
-            room_overlapping = Criteria.is_room_overlapped(slots, reservation,
-                                                           dur)
+            room_overlapping = Criteria.is_room_overlapped(
+                room_by_time_slot, room, day, time)
+
             criteria[ci + 0] = not room_overlapping
 
             # 2. does curr room have enough seats
@@ -445,7 +514,8 @@ class Schedule:
             start_time = time
             end_time = start_time + dur
 
-            prof_satisfied = Criteria.is_prof_satisfied(section, start_time,
+            prof_satisfied = Criteria.is_prof_satisfied(section.pref_time_range,
+                                                        start_time,
                                                         end_time)
             criteria[ci + 3] = prof_satisfied
 
@@ -466,6 +536,11 @@ class Schedule:
                 Criteria.is_conflict(section, configuration.conflicts_dict))
             criteria[ci + 5] = not conflict
 
+            # 7. Check day satisfied
+            do = Criteria.is_day_satisfied(section.pref_days, day)
+            criteria[ci + 6] = do
+
+            # if the constraint checks out, ci[i] must be true
             for i in range(len(self._objectives)):
                 if criteria[ci + i]:  # Checking if that criteria was fulfilled
                     score += 1
@@ -517,8 +592,28 @@ class Schedule:
 
     @property
     def objectives(self):
+        # print(self._objectives)
         return self._objectives
 
     @property
     def converted_objectives(self):
+        # print(self._converted_objectives)
         return self._converted_objectives
+
+    def print_criteria(self):
+        size = self.criteria_size
+        num = 0
+        for i in range(0, len(self.criteria), size):
+            print(num, ":", self.criteria[i:i + size])
+            num += 1
+        
+
+    def update_final_criteria(self):
+        size = self.criteria_size
+        
+        self.final_criteria = self.criteria.reshape(-1, size).tolist()
+        # print(self.final_criteria)
+        # num = 0
+        # for lis in self.final_criteria:
+        #     print(num, ":", lis)
+        #     num += 1

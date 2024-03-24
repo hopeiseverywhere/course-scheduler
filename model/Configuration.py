@@ -60,8 +60,6 @@ class Configuration:
             section.pref_time_range = time_range
             # print(section.pref_time_range)
 
-    
-
     def parse_file(self, data: list[dict[str, Any]]) -> None:
         """
         Parses file data to populate the configuration.
@@ -168,7 +166,6 @@ class Configuration:
         self.lab_and_main_secs = main_sec_to_lab.copy()
         self.lab_and_main_secs.update(self.lab_main_course_sec)
 
-
     def init_non_concurrent_dict(self):
         """
         Map a course to its conflict courses
@@ -189,8 +186,6 @@ class Configuration:
         #     key_sections = key.course_name
         #     value_sections = [value.course_name for value in value_list]
         #     print("{:<10} : {}".format(key_sections, value_sections))
-
-    
 
     def get_main_section(self, lab: Section):
         """
@@ -216,7 +211,7 @@ class Configuration:
             main_sec_id = self.lab_main_course_id[lab_id]
             return self.get_section_by_id(main_sec_id)
         return None
-    
+
     def get_linked_section(self, sec: Section):
         """Given a lab/main section, return the corresponding main/lab section
 
@@ -243,8 +238,8 @@ class Configuration:
             return self._sections_by_id.get(section_id)
         return None
 
-    def is_room_occupied(self, room_id: int, day: int,
-                         relative_time: int) -> bool:
+    def is_room_occupied(self, sec_id: int, dur: int,  day: int,
+                         relative_time: int, room_id: int) -> bool:
         """Given room id and a relative start time,
         check whether the room is occupied
 
@@ -255,12 +250,22 @@ class Configuration:
         Returns:
             bool: _description_
         """
+        sublist = []
+        for i in range(relative_time, relative_time + dur):
+            sublist.append(self.room_by_time_slot[room_id][day][i])
+        if all(el is False for el in sublist):
+            # Condition 1: All elements are False -> room is not occupied
+            return False
 
-        if self.room_by_time_slot[room_id][day][relative_time] or \
-                self.room_by_time_slot[room_id][day][relative_time + 2]:
-            return True
-        return False
-    
+        count_false = sublist.count(False)
+        count_id = sublist.count(sec_id)
+        # Condition 3: If false count + section count == length of sublist -> room is not occupied
+        if count_false + count_id == len(sublist):
+            return False
+
+        # Condition 2: If any element is not equal to sec_id, room is occupied
+        return any(el != sec_id for el in sublist)
+
     def is_section_linked_to_lab(self, section: Section) -> bool:
         """Given a section, check whether it linked to a lab/main section
 
@@ -289,9 +294,14 @@ class Configuration:
             relative_start (int): _description_
             dur (int): _description_
         """
+        sublist = []
         for i in range(relative_start, relative_start + dur):
-            self.room_by_time_slot[room_id][day][i] = sec_id
-        
+            sublist.append(self.room_by_time_slot[room_id][day][i])
+        if all(el is False for el in sublist):
+
+            for i in range(relative_start, relative_start + dur):
+
+                self.room_by_time_slot[room_id][day][i] = sec_id
 
     def clean_room_slot(self, section: Section):
         """Clean the previous selection
@@ -300,15 +310,19 @@ class Configuration:
             section (Section): _description_
         """
 
-        if section.room_id is not None:
+        if section.room_id is not None and section.relative_start is not None:
 
             day = section.day
             room_id = section.room_id
             dur = section.duration
             relative_start = section.relative_start
+            sec_id = section.section_id
 
             for i in range(relative_start, relative_start + dur):
-                self.room_by_time_slot[room_id][day][i] = False
+                # only clean the slot with current section id
+                curr = self.room_by_time_slot[room_id][day][i]
+                if curr == sec_id:
+                    self.room_by_time_slot[room_id][day][i] = False
             # self.print_room_slot("clean room",room_id, day)
 
     def print_room_slot(self, msg: str, room_id: int, day: int):
@@ -323,7 +337,7 @@ class Configuration:
             int: The rounded down number to the nearest multiple of 5
         """
         return (number // 5) * 5
-    
+
     @staticmethod
     def print_dict(dict: Dict[Section, Section]):
         """

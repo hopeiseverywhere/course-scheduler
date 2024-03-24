@@ -41,7 +41,6 @@ class HtmlOutput:
         "19:50 - 20:10", "20:10 - 20:30", "20:30 - 20:50", "20:50 - 21:10",
         "21:10 - 21:30", "21:30 - 21:50"
     )
-    
 
     WEEK_DAYS = ("MON", "TUE", "WED", "THU", "FRI", "SAT")
 
@@ -56,10 +55,10 @@ class HtmlOutput:
               str(cc.section_id), "<br />", cc.prof_name, "<br />"]
         if cc.is_lab:
             sb.append("Is lab<br />")
-        print("here: ",section_id, criteria[section_id])
+        print("here: ", section_id, criteria[section_id])
         for i in range(length_CRITERIAS):
             sb.append("<span style='color:")
-            
+
             if criteria[section_id][i] is True:
                 sb.append(COLOR1)
                 sb.append("' title='")
@@ -80,12 +79,29 @@ class HtmlOutput:
         ci = 0
 
         time_table = defaultdict(list)
-        items = solution.sections_table.items
+        items = solution.sections_table.items()
+        # ROOM_COLUMN_NUMBER = HtmlOutput.ROOM_COLUMN_NUMBER
+        # getCourseClass = HtmlOutput.getCourseClass
+        criteria = solution.final_criteria
+         # separate room conflicts
+        perfect_sections = []
+        conflict_sections = []
+
+        for section, _i in items:
+            if criteria[section.section_id][0] is False:
+                conflict_sections.append(section)
+            else:
+                perfect_sections.append(section)
+        
+        HtmlOutput.generate_individual_section(solution, perfect_sections, time_table, slot_table)
+        # HtmlOutput.generate_individual_section(solution, conflict_sections, time_table, slot_table)
+        return time_table
+
+    @staticmethod
+    def generate_individual_section(solution, sections, time_table, slot_table):
         ROOM_COLUMN_NUMBER = HtmlOutput.ROOM_COLUMN_NUMBER
         getCourseClass = HtmlOutput.getCourseClass
-
-        
-        for section, reservation_index in items():
+        for section in sections:
             # reservation = Reservation.parse(reservation_index)
 
             # coordinate of time-space slot
@@ -117,7 +133,6 @@ class HtmlOutput:
 
             room_schedule[dayId] = "".join(
                 getCourseClass(section, solution.final_criteria, section.section_id))
-            
 
         return time_table
 

@@ -15,15 +15,27 @@ class Criteria:
 
     # 0. check for room overlapping of classes
     @staticmethod
-    def is_room_overlapped(room_by_time_slot: Dict[int, Dict[int, List[bool]]],
-                           room_id: int, day: int, relative_start: int):
+    def is_room_overlapped(room_slot: Dict[int, Dict[int, List[bool | int]]], sec_id: int, dur: int,  day: int, relative_time: int, room_id: int):
         """
         Check if there is any room overlap for the given reservation
         """
-        if (room_by_time_slot[room_id][day][relative_start] is True
-                or room_by_time_slot[room_id][day][relative_start + 2] is True):
-            return True
-        return False
+        sublist = []
+        for i in range(relative_time, relative_time + dur):
+            sublist.append(room_slot[room_id][day][i])
+
+        if all(el is False for el in sublist):
+            # Condition 1: All elements are False -> room is not occupied
+            return False
+
+        count_false = sublist.count(False)
+        count_id = sublist.count(sec_id)
+        # Condition 3: If false count + section count == length of sublist -> room is not occupied
+        if count_false + count_id == len(sublist):
+            return False
+
+        # Condition 2: If any element is not equal to sec_id, room is occupied
+        return any(el != sec_id for el in sublist)
+        
 
     # 1. check seat enough
     @staticmethod

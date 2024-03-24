@@ -101,9 +101,11 @@ class Schedule:
                 if abs(day - linked.day) < 1:
                     self.configuration.clean_room_slot(linked)
                     conflict_day = random.choice(linked.pref_days)
-                    linked.set_day(conflict_day)
-                    self.configuration.set_room_slot(linked.section_id,
-                        linked.room_id, conflict_day, linked.relative_start, linked.duration)
+
+                    if not self.configuration.is_room_occupied(sec_id=linked.section_id, dur=linked.duration, day=conflict_day, relative_time=linked.relative_start, room_id=linked.room_id):
+                        linked.set_day(conflict_day)
+                        self.configuration.set_room_slot(linked.section_id,
+                                                         linked.room_id, conflict_day, linked.relative_start, linked.duration)
                     if abs(day - linked.day >= 1):
                         return day
 
@@ -169,7 +171,7 @@ class Schedule:
         room_id = random.choice(
             self._configuration.rooms_by_capacity[number_of_students])
         # if the room is occupied, perform random selection again
-        while self.configuration.is_room_occupied(room_id, day, start_time):
+        while self.configuration.is_room_occupied(sec_id=sec_id, dur=dur, day=day, relative_time=start_time, room_id=room_id):
             # print("here")
             room_id = random.choice(
                 self._configuration.rooms_by_capacity[number_of_students])
@@ -424,7 +426,7 @@ class Schedule:
         # chromosome's score
         score = 0
         criteria = self._criteria
-        configuration = self._configuration
+        configuration = self.configuration
         items = self._sections_table.items()
         slots = self._slots
         number_of_rooms = configuration.number_of_rooms
@@ -448,7 +450,7 @@ class Schedule:
 
             # 1. check room overlapping
             room_overlapping = Criteria.is_room_overlapped(
-                room_by_time_slot, room, day, time)
+                room_slot=room_by_time_slot, sec_id=section_id, dur=dur, day=day, relative_time=time, room_id=room)
 
             criteria[ci + 0] = not room_overlapping
 

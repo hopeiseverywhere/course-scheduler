@@ -6,8 +6,8 @@ import time
 
 from model.Configuration import Configuration
 from algorithm.GeneticAlgorithm import GeneticAlgorithm
-from api.Output import get_result
-from output.HtmlOutput import HtmlOutput
+from api.Api_Output import get_result
+from local_output.HtmlOutput import HtmlOutput
 from io_data.input.testData import data
 
 

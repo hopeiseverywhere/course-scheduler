@@ -112,7 +112,7 @@ def convert_json_to_csv(json_file):
     fieldnames = ['Section Id', 'Course', 'Prof', 'Start Day',
                   'Start Time', 'End Time', 'Room', 'Criteria Satisfied']
 
-    # Directory for the output CSV file
+    # Directory for the local_output CSV file
     csv_file_path = os.path.join(script_dir, 'output_csv.csv')
 
     with open(csv_file_path, 'w', newline='') as csvfile:

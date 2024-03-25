@@ -1,16 +1,16 @@
 from fastapi import Body, FastAPI, HTTPException
-from pydantic import BaseModel, validator
-import json
 from fastapi.responses import JSONResponse
+from pydantic import BaseModel
+import json
 import asyncio
 from time import time
 from typing import List, Union, Annotated
+
 from algorithm.GeneticAlgorithm import GeneticAlgorithm
 from model.Configuration import Configuration
-from api.Output import get_result
-from model import Constant
-
+from api.Api_Output import get_result
 from api.Data_Model import Section, Room
+from model import Constant
 
 description = """
 Course Schedular
@@ -32,7 +32,6 @@ class BaseRequest(BaseModel):
 
 @app.get("/")
 async def root():
-
     return {"message": "Hello World"}
 
 

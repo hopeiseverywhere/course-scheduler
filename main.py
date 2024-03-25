@@ -1,13 +1,16 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import Body, FastAPI, HTTPException
 from pydantic import BaseModel, validator
 import json
 from fastapi.responses import JSONResponse
 import asyncio
 from time import time
-from typing import List, Union
+from typing import List, Union, Annotated
 from algorithm.GeneticAlgorithm import GeneticAlgorithm
 from model.Configuration import Configuration
 from api.Output import get_result
+from model import Constant
+
+from api.Data_Model import Section, Room
 
 description = """
 Course Schedular
@@ -15,64 +18,11 @@ Course Schedular
 
 app = FastAPI(title="Course Schedular API",
               description=description,
-              version="0.0.2",
+              version="4.0",
               debug=True)
 
 json_data_in_memory = None
 configuration = None
-
-
-class Section(BaseModel):
-    """
-    Represents a section.
-
-    Attributes:
-        id (int): The unique identifier for the section.
-        course (str): The course name associated with the section.
-        professor (str): The professor teaching the section.
-        pref_time (List[str]): The preferred times for the section, ["morning", "afternoon", "evening"].
-        lab (bool | None): Indicates whether the section requires a lab FOR NOW.
-        duration (int): The duration of the section in minutes
-        students (int): The number of students enrolled in the section.
-
-    Methods:
-        validate_positive_integer(cls, value): Validates that the value is a positive integer.
-    """
-    course: str
-    professor: str
-    pref_time: List[str]
-    is_lab: bool | None
-    duration: int
-    students: int
-
-    @validator('duration', 'students', pre=True)
-    def validate_positive_integer(cls, value):
-        """Validate that the value is a positive integer."""
-        if value <= 0:
-            raise ValueError('Value must be a positive integer')
-        return value
-
-
-class Room(BaseModel):
-    """
-    Represents a room.
-
-    Attributes:
-        name (str): The name or identifier of the room.
-        size (int): The capacity or size of the room in terms of seats.
-
-    Methods:
-        validate_positive_integer(cls, value): Validates that the value is a positive integer.
-    """
-    name: str
-    size: int
-
-    @validator('size', pre=True)
-    def validate_positive_integer(cls, value):
-        """Validate that the value is a positive integer."""
-        if value <= 0:
-            raise ValueError('Value must be a positive integer')
-        return value
 
 
 class BaseRequest(BaseModel):
@@ -88,6 +38,12 @@ async def root():
 
 @app.post("/data")
 async def save_data(data: List[BaseRequest]):
+    """Load the data to algorithm
+
+    Args:
+        data (List[BaseRequest]): including "section" and "room"
+
+    """
     try:
         global configuration, json_data_in_memory
 
@@ -102,7 +58,6 @@ async def save_data(data: List[BaseRequest]):
             else:
                 raise HTTPException(
                     status_code=400, detail="Invalid request format")
-        # print(saved_data)
 
         json_data_in_memory = saved_data
 
@@ -114,8 +69,8 @@ async def save_data(data: List[BaseRequest]):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/run/{id}")
-async def run_process(id: float = 0.93):
+@app.get("/run/{accuracy}")
+async def run_process(accuracy: float = 0.93):
     """
     Run the process using the provided minimum accuracy of the genetic algorithm.
 
@@ -137,11 +92,11 @@ async def run_process(id: float = 0.93):
 
         alg = GeneticAlgorithm(configuration)
         # print(configuration)
-        timeout = 500
+        timeout = 300
         try:
             start_time = time()  # Capture start time
             result = await asyncio.wait_for(
-                asyncio.to_thread(alg.run, 9999, id, timeout),
+                asyncio.to_thread(alg.run, 9999, accuracy, timeout),
                 timeout=timeout
             )
             end_time = time()  # Capture end time
@@ -165,7 +120,7 @@ async def run_process(id: float = 0.93):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.patch("/clear")
+@app.delete("/clear")
 async def clear():
     """
     Clears the previous configuration data.

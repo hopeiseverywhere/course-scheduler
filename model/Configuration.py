@@ -60,7 +60,7 @@ class Configuration:
             section.pref_time_range = time_range
             # print(section.pref_time_range)
 
-    def parse_file(self, data: list[dict[str, Any]]) -> None:
+    def parse_file(self, data: List[Dict[str, Any]]) -> None:
         """
         Parses file data to populate the configuration.
         """
@@ -76,6 +76,7 @@ class Configuration:
 
         for item in data:
             if 'room' in item:
+                
                 room_data = item['room']
                 room = Room(
                     name=room_data['name'],
@@ -88,6 +89,7 @@ class Configuration:
                     self.room_by_time_slot[room.id][i] = [
                         False] * Constant.DAY_SLOTS
             elif 'section' in item:
+                # print("sth wrong")
                 section_data = item['section']
                 section = Section(
                     course_num=section_data['course'],

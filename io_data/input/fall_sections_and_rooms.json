@@ -14,7 +14,7 @@
         "section": {
             "course": "5003",
             "professor": "Tony Mullen",
-            "pref_time": ["morning "],
+            "pref_time": ["morning"],
             "pref_day": [0, 1, 2, 3, 4],
             "is_lab": true,
             "duration": 100,

@@ -65,7 +65,6 @@ class GeneticAlgorithm:
         repeat = 0
         last_best_fit = 0.0
         start_time = time()
-
         while True:
             elapsed_time = time() - start_time
             if timeout and elapsed_time >= timeout:
@@ -77,6 +76,7 @@ class GeneticAlgorithm:
                   "Generation:", current_generation, end="\r")
             # reached best
             if best.fitness > min_fitness:
+                # print("Iterations to find solution: {}".format(current_generation))
                 break
             if current_generation >= max_repeat * 2:
                 print()

@@ -54,6 +54,7 @@ class GeneticAlgorithm:
         self._crossover_points = crossover_pts
         self._crossover_prob = crossover_prob
         self._mutation_prob = mutation_prob
+        self.current_generation = 0
 
     def run(self, max_repeat=9999, min_fitness=0.989, timeout=None):
         # clear best chromosome group from previous execution
@@ -61,7 +62,7 @@ class GeneticAlgorithm:
         self.initialize(self._chromosomes)
         random.seed(round(time() * 1000))
         # current generation
-        current_generation = 0
+        self.current_generation = 0
         repeat = 0
         last_best_fit = 0.0
         start_time = time()
@@ -73,12 +74,12 @@ class GeneticAlgorithm:
 
             best = self.result
             print("Fitness:", "{:f}\t".format(best.fitness),
-                  "Generation:", current_generation, end="\r")
+                  "Generation:", self.current_generation, end="\r")
             # reached best
             if best.fitness > min_fitness:
                 # print("Iterations to find solution: {}".format(current_generation))
                 break
-            if current_generation >= max_repeat * 2:
+            if self.current_generation >= max_repeat * 2:
                 print()
                 print(self.result.fitness)
                 break
@@ -97,7 +98,7 @@ class GeneticAlgorithm:
             self.replacement(self._chromosomes, self._replace_by_generation)
 
             last_best_fit = best.fitness
-            current_generation += 1
+            self.current_generation += 1
 
     def is_in_best(self, chromosome_index) -> bool:
         """

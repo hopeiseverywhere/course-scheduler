@@ -12,9 +12,9 @@ import csv
 
 def local_app():
     # Testing regular method
-    configuration = Configuration()
-    configuration.parse_file(data)
     for i in range(20):
+        configuration = Configuration()
+        configuration.parse_file(data)
         start_time = int(round(time.time() * 1000))
         best = GeneticAlgorithm(configuration)
         best.run(9999, 0.999)
@@ -26,6 +26,8 @@ def local_app():
 
     # Testing restart method
     for i in range(20):
+        configuration = Configuration()
+        configuration.parse_file(data)
         start_time = int(round(time.time() * 1000))
         max_generations = 1250 // 2
         min_fitness = 0.999

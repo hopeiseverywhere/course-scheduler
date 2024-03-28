@@ -44,8 +44,12 @@ class Configuration:
         self._isEmpty = True
         self._rooms = {}
         self._sections_by_id = {}
-        self.rooms_by_capacity = {}
+        self.room_by_time_slot: Dict[int, Dict[int, List[bool | int]]] = {}
         self._sections = []
+        self.lab_main_course_sec: Dict[Section: Section] = {}
+        self.lab_and_main_secs: Dict[Section: Section] = {}
+        self.lab_main_course_id: Dict[int: int] = {}
+        self.conflicts_dict: Dict[Section: List[Section]] = {}
         Room.restart_id()
         Section.restart_id()
 
@@ -69,7 +73,7 @@ class Configuration:
         if self._isEmpty is False:
             raise ValueError(
                 "Configuration is already initialized. "
-                "Clear previous data before processing new data.")
+                "Clear previous data before processing new data.")  # TODO make a reset method
         Room.restart_id()
         Section.restart_id()
         self._rooms = {}

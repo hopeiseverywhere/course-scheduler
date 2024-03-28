@@ -12,13 +12,15 @@ from io_data.input.testData import data
 
 
 def local_app():
+    """Local version starter
+    """
     start_time = int(round(time.time() * 1000))
     configuration = Configuration()
 
     configuration.parse_file(data)
 
     alg = GeneticAlgorithm(configuration)
-    alg.run(9999, 0.999)
+    alg.run(9999, 0.95)
 
     # save json version of result
     get_result(alg.result)
@@ -38,17 +40,16 @@ def local_app():
     with open(local_file_path, "w", encoding="utf-8") as local_writer:
         local_writer.write(html_result)
 
-
     seconds = (int(round(time.time() * 1000)) - start_time) / 1000.0
-    print("\nCompleted in {} secs.\n".format(seconds))
+    print(f"\nCompleted in {seconds} secs.\n")
     os.system("open " + temp_file_path)
-
 
     # print room mapped to day and time slot table
     # alg.result.configuration.print_room_slot()
 
     # print final criteria
     # alg.result.print_final_criteria()
+
 
 if __name__ == '__main__':
     local_app()

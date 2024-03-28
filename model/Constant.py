@@ -34,9 +34,9 @@ DAY_START_MINUTES = 50
 # afternoon = 12:30 - 17:30 -> duration 5 hour -> 15 slots
 # evening = 17:30 - 21:50 -> duration 4 hour 20 minutes -> 13 slots
 time_ranges = {
-    "morning": [0, 8],
-    "afternoon": [8, 23],
-    "evening": [23, 36]
+    "Morning": [0, 8],
+    "Afternoon": [8, 23],
+    "Evening": [23, 36]
 }
 
 # Dictionary to relate labs to their main classes. Usage will check if course is a lab before accessing dictionary,

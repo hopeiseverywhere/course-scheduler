@@ -29,6 +29,7 @@ def index_to_day(idx):
     }
     return day_mapping.get(idx, None)
 
+
 def convert_time_to_ampm(time_str):
     # Parse time string to datetime object
     time_obj = datetime.strptime(time_str, "%H:%M")
@@ -66,10 +67,11 @@ def convert_csv_to_json(csv_file):
             # day
             pref_day = [row['Day']]
             pref_day = pref_day[0].split(', ')
-            pref_day = list(map(day_to_index, pref_day))
+            # pref_day = list(map(day_to_index, pref_day))
+            pref_day = list(pref_day)
             # print(pref_day)
             # time
-            pref_time = [row['Time'].lower()]
+            pref_time = [row['Time']]
             pref_time = pref_time[0].split(', ')
 
             # duration
@@ -140,11 +142,14 @@ def convert_json_to_csv(json_file):
 
 
 def main():
-
-    # csv_file_name = 'input.csv'
-    # convert_csv_to_json(csv_file_name)
-    json_file_name = 'output_json.json'
-    convert_json_to_csv(json_file_name)
+    current_directory = os.getcwd()
+    print("Current Directory:", current_directory)
+    script_directory = os.path.dirname(os.path.realpath(__file__))
+    print("Directory of the current script file:", script_directory)
+    csv_file_name = os.path.join(script_directory, "csv_to_json", 'input.csv')
+    convert_csv_to_json(csv_file_name)
+    # json_file_name = 'output_json.json'
+    # convert_json_to_csv(json_file_name)
 
 
 if __name__ == "__main__":

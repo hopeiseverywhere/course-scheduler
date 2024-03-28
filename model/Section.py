@@ -1,7 +1,7 @@
 import random
 from random import randrange
 from model import Constant
-
+from util import utility
 
 class Section:
     # ID counter used to assign IDs automatically
@@ -172,11 +172,11 @@ class Section:
             "Section Id": section.section_id,
             "Course": section.course_num,
             "Prof": section.prof_name,
-            "Start Day": section.day,
+            "Start Day": utility.dayStrConverter(section.day),
             "Start Time": section.start_time,
             "End Time": section.end_time,
             "Room": section.room_id,
-            "Dur": section.duration,
+            "Dur": section.duration * Constant.TIME_SEGMENT,
             "Relative Start": section.relative_start,
             "Criteria Satisfied": section.criteria_met
         }

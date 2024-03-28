@@ -11,16 +11,18 @@ main_dir = os.path.dirname(os.path.abspath(__file__))
 file_path = os.path.join(main_dir, "..", "io_data", json_file_name)
 Criteria = Criteria
 
+
 def get_result(solution: Schedule):
     """
     convert GA result to json and or local file
     """
-    
+
     configuration = solution.configuration
     get_room_by_id = configuration.get_room_by_id
     final_criteria = solution.final_criteria
 
-    # Sort the list of sections so criteria satisfaction for each course can be easily checked
+    # Sort the list of sections so criteria satisfaction
+    # for each course can be easily checked
     sections = sorted(configuration.sections, key=lambda x: x.section_id)
     criteria_size = Criteria.criteria_size
 
@@ -39,7 +41,6 @@ def get_result(solution: Schedule):
         section_dict["Room"] = room_name
         sections_dict_list.append(section_dict)
 
-
     json_string = json.dumps(sections_dict_list, indent=4)
 
     # Write the JSON string to the file
@@ -49,6 +50,6 @@ def get_result(solution: Schedule):
     convert_json_to_csv(json_file_name)
 
     print("JSON data saved to", file_path)
-    print("Final Fitness: ",solution.fitness)
+    print("Final Fitness: ", solution.fitness)
     print("Fitness = {} / {}".format(solution.score, solution.criteria_length))
     return json_string

@@ -3,29 +3,48 @@ import os
 import tempfile
 import time
 
-
 from model.Configuration import Configuration
 from algorithm.GeneticAlgorithm import GeneticAlgorithm
 from api.Api_Output import get_result
 from local_output.HtmlOutput import HtmlOutput
 from io_data.input.testData import data
-
+from threading import Thread
 
 def local_app():
     """Local version starter
     """
     start_time = int(round(time.time() * 1000))
-    configuration = Configuration()
 
-    configuration.parse_file(data)
+    pool_size = 10
+    thread_list = []
+    max_repeat = 9999
+    min_fitness = 0.999
+    for i in range(pool_size):
+        configuration = Configuration()
+        configuration.parse_file(data)
+        alg = GeneticAlgorithm(configuration)
+        thread_list.append((Thread(target=alg.run, args=(max_repeat, min_fitness,)), alg))
+        thread_list[i][0].start()
 
-    alg = GeneticAlgorithm(configuration)
-    alg.run(9999, 0.95)
+    # Block until a configuration is found
+    best = None
+    configuration_found = False
+    while not configuration_found:
+        # Check if any have finished. If one has, set it to best
+        for thread in thread_list:
+            if thread[1].solution_found is True:
+                best = thread[1]
+                configuration_found = True
+
+        # If a configuration was found, end all threads gracefully (set their solution found to true)
+        if configuration_found is True:
+            for thread in thread_list:
+                thread[1].set_solution_found(True)
 
     # save json version of result
-    get_result(alg.result)
+    get_result(best.result)
 
-    html_result = HtmlOutput.getResult(alg.result)
+    html_result = HtmlOutput.getResult(best.result)
 
     file_name = "temp.json"
     temp_file_path = tempfile.gettempdir() + file_name.replace(".json", ".htm")
@@ -45,10 +64,10 @@ def local_app():
     os.system("open " + temp_file_path)
 
     # print room mapped to day and time slot table
-    # alg.result.configuration.print_room_slot()
+    # best.result.configuration.print_room_slot()
 
     # print final criteria
-    # alg.result.print_final_criteria()
+    # best.result.print_final_criteria()
 
 
 if __name__ == '__main__':

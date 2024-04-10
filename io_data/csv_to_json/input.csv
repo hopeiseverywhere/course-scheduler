@@ -1,0 +1,45 @@
+Course #,Cap,Course Title,Day,Time,Prof
+5001,40,Intensive Foundations of Computer Science,"Monday, Tuesday, Wednesday, Thursday, Friday",Morning,Tony Mullen
+5003,40,Recitation for 5001,"Monday, Tuesday, Wednesday, Thursday, Friday",Morning,Tony Mullen
+5001,40,Intensive Foundations of Computer Science,"Monday, Tuesday, Wednesday, Thursday, Friday","Morning, Afternoon",Sarita Singh
+5003,40,Recitation for 5001,"Monday, Tuesday, Wednesday, Thursday, Friday","Morning, Afternoon",Sarita Singh
+5001,40,Intensive Foundations of Computer Science,"Monday, Tuesday, Wednesday, Thursday, Friday","Morning, Afternoon",Aditya Mishra
+5003,40,Recitation for 5001,"Monday, Tuesday, Wednesday, Thursday, Friday","Morning, Afternoon",Aditya Mishra
+5002,60,Discrete Structures,"Monday, Tuesday, Wednesday, Thursday, Friday","Morning, Afternoon",Oscar Veliz
+5002,60,Discrete Structures,Tuesday,Evening,Steve Shafer
+5004,40,Object Oriented Design,"Monday, Tuesday, Wednesday, Thursday, Friday","Morning, Afternoon",Tamara Bonaci
+5004,40,Object Oriented Design,"Monday, Tuesday, Wednesday, Thursday, Friday",Evening,Chris Geeng
+5005,40,Recitation for 5004,"Monday, Tuesday, Wednesday, Thursday, Friday","Morning, Afternoon",Tamara Bonaci
+5005,40,Recitation for 5004,"Monday, Tuesday, Wednesday, Thursday, Friday",Evening,Chris Geeng
+5008,40,"Data Structures, Algos, and Their Applications","Tuesday, Wednesday, Thursday","Morning, Afternoon",Sarita Singh
+5009,40,Recitation for 5008,"Tuesday, Wednesday, Thursday","Morning, Afternoon",Sarita Singh
+5010,40,PDP,"Monday, Tuesday, Wednesday, Thursday, Friday","Morning, Afternoon",Divya Chaudhary
+5011,40,Recitation for PDP,"Monday, Tuesday, Wednesday, Thursday, Friday","Morning, Afternoon",Divya Chaudhary
+5010,40,PDP,Wednesday,Evening,Brian Cross
+5011,40,Recitation for 5010,Monday,Evening,Brian Cross
+5010,40,PDP,"Wednesday, Thursday, Friday","Morning, Afternoon",Richard Cobbe
+5011,40,Recitation,"Wednesday, Thursday, Friday","Morning, Afternoon",Richard Cobbe
+5800,60,Algorithms,Friday,Evening,Zhifeng Sun
+5800,60,Algorithms,Monday,Evening,Hyonho Lee
+5100,40,Intro to AI,"Monday, Tuesday, Wednesday, Thursday, Friday","Morning, Afternoon",Oscar Veliz
+5200,40,Database Management Systems,"Wednesday, Thursday, Friday","Morning, Afternoon",Richard Cobbe
+5200,40,Database Management Systems,"Wednesday, Thursday, Friday","Morning, Afternoon",Richard Cobbe
+5200,60,Database Management Systems,Thursday,Evening,Bruce Chhay
+5330,30,Comp Vision,"Wednesday, Thursday, Friday",Afternoon,Bruce Maxwell
+5340,30,Computer Human Interaction,"Monday, Tuesday, Wednesday, Thursday, Friday","Morning, Afternoon",Chris Geeng
+5500,60,Foundations of Software Engineering,"Monday, Tuesday, Wednesday",Evening,Mark Bonicillo 
+5500,60,Foundations of Software Engineering,Saturday,Afternoon,Alex Lash
+5520,45,Mobile Application Development,"Monday, Tuesday, Wednesday, Thursday, Friday","Morning, Afternoon",Oscar Veliz
+5600,45,Computer Systems,"Monday, Tuesday, Wednesday, Thursday, Friday","Morning, Afternoon",Aditya Mishra
+5610,60,Web Development,Thursday,Evening,Hunter Jorgensen
+5700,40,Networks,"Tuesday, Wednesday, Thursday","Morning, Afternoon",Sarita Singh
+6120,30,NLP,"Monday, Tuesday, Wednesday, Thursday, Friday","Morning, Afternoon",Shanu Sushmita
+6140,20,Machine Learning,"Monday, Tuesday, Wednesday, Thursday, Friday","Morning, Afternoon",Divya Chaudhary
+6140,20,Machine Learning,"Monday, Tuesday, Wednesday, Thursday, Friday","Morning, Afternoon",Shanu Sushmita
+6220,30,Data Mining Techniques,"Wednesday, Thursday, Friday","Morning, Afternoon",Yifan Hu
+6240,30,Large Scale Parallel Data Processing,"Tuesday, Wednesday","Morning, Afternoon",Divya Chaudhary
+6510,30,Advanced Software Dev,"Tuesday, Wednesday",Evening,Theo Skoteiniotis
+6620,60,Cloud Computing,"Monday, Tuesday, Wednesday, Thursday, Friday","Morning, Afternoon",Aditya Mishra
+6650,45,Scalable Distributed Systems,Friday,Evening,Vishal Rajpal
+6760,35,"priv, security","Monday, Tuesday, Wednesday, Thursday, Friday","Morning, Afternoon",Tamara Bonaci
+7290,30,privacy preserving machine learning,"Monday, Tuesday, Wednesday, Thursday, Friday","Morning, Afternoon",Tamara Bonaci

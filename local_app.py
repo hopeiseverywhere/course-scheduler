@@ -15,15 +15,19 @@ def local_app():
     """
     start_time = int(round(time.time() * 1000))
 
+    # configuration = Configuration()
+    # configuration.parse_file(data)
+    # best = GeneticAlgorithm(configuration)
+    # best.run(9999, 0.975)
+
+    # Set up the number of threads (quantity below) to search for an algorithm
     pool_size = 10
     thread_list = []
-    max_repeat = 9999
-    min_fitness = 0.999
     for i in range(pool_size):
         configuration = Configuration()
         configuration.parse_file(data)
         alg = GeneticAlgorithm(configuration)
-        thread_list.append((Thread(target=alg.run, args=(max_repeat, min_fitness,)), alg))
+        thread_list.append((Thread(target=alg.run, args=(9999, 0.99,)), alg))
         thread_list[i][0].start()
 
     # Block until a configuration is found
@@ -40,6 +44,10 @@ def local_app():
         if configuration_found is True:
             for thread in thread_list:
                 thread[1].set_solution_found(True)
+                thread[0].join()
+
+    # Save the number of seconds it took to find the result and let child threads terminate gracefully
+    seconds = (int(round(time.time() * 1000)) - start_time) / 1000.0
 
     # save json version of result
     get_result(best.result)
@@ -58,8 +66,6 @@ def local_app():
     print(local_file_path)
     with open(local_file_path, "w", encoding="utf-8") as local_writer:
         local_writer.write(html_result)
-
-    seconds = (int(round(time.time() * 1000)) - start_time) / 1000.0
     print(f"\nCompleted in {seconds} secs.\n")
     os.system("open " + temp_file_path)
 

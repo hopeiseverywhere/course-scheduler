@@ -82,8 +82,8 @@ class GeneticAlgorithm:
                 self.solution_found = True
                 break
             if self.current_generation >= max_repeat * 2:
-                print()
-                print(self.result.fitness)
+                # print()
+                # print(self.result.fitness)
                 break
 
             difference = abs(best.fitness - last_best_fit)

@@ -13,10 +13,10 @@ import csv
 
 def local_app():
     # Testing regular method
-    for i in range(78):
+    for i in range(20):
+        start_time = int(round(time.time() * 1000))
         configuration = Configuration()
         configuration.parse_file(data)
-        start_time = int(round(time.time() * 1000))
         best = GeneticAlgorithm(configuration)
         best.run(9999, 0.999)
         seconds = (int(round(time.time() * 1000)) - start_time) / 1000.0
@@ -25,17 +25,16 @@ def local_app():
             writer.writerow([0, i, best.current_generation, seconds])
         print("Finished standard, iteration {}".format(i))
 
-    pool_size = 10
-    for j in range(100):
-        thread_list = []
+
+    for j in range(20):
         start_time = int(round(time.time() * 1000))
-        max_repeat = 9999
-        min_fitness = 0.999
+        pool_size = 10
+        thread_list = []
         for i in range(pool_size):
             configuration = Configuration()
             configuration.parse_file(data)
             alg = GeneticAlgorithm(configuration)
-            thread_list.append((Thread(target=alg.run, args=(max_repeat, min_fitness,)), alg))
+            thread_list.append((Thread(target=alg.run, args=(9999, 0.99,)), alg))
             thread_list[i][0].start()
 
         # Block until a configuration is found
@@ -52,6 +51,7 @@ def local_app():
             if configuration_found is True:
                 for thread in thread_list:
                     thread[1].set_solution_found(True)
+                    thread[0].join()
 
         seconds = (int(round(time.time() * 1000)) - start_time) / 1000.0
         with open('output.csv', 'a', newline='') as csvfile:

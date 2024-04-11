@@ -21,7 +21,7 @@ def local_app():
     # best.run(9999, 0.975)
 
     # Set up the number of threads (quantity below) to search for an algorithm
-    pool_size = 10
+    pool_size = os.cpu_count() - 1  # minus one for main (parent) thread
     thread_list = []
     for i in range(pool_size):
         configuration = Configuration()

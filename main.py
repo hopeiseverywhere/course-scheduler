@@ -1,16 +1,15 @@
-from fastapi import FastAPI, HTTPException, Request, Path
+from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 import json
 import asyncio
 import time
-from typing import List, Union, Annotated
+from typing import List, Union
 from threading import Thread
 
 import codecs
 import os
 import tempfile
-import time
 from local_output.HtmlOutput import HtmlOutput
 
 from algorithm.GeneticAlgorithm import GeneticAlgorithm
@@ -30,19 +29,6 @@ app = FastAPI(title="Course Schedular API",
 
 json_data_in_memory = None
 configuration = None
-stop_threads = False  # Flag to signal threads to stop
-
-
-@app.on_event("startup")
-async def startup_event():
-    global stop_threads
-    stop_threads = False  # Reset the flag on startup
-
-
-@app.on_event("shutdown")
-async def shutdown_event():
-    global stop_threads
-    stop_threads = True  # Set the flag to stop threads on shutdown
 
 
 class BaseRequest(BaseModel):
@@ -88,9 +74,8 @@ async def save_data(data: List[BaseRequest]):
 
 
 @app.get("/run/{accuracy}/{timeout}")
-async def run_algorithm(request: Request, 
-                        accuracy: float = Path(default=0.95, title="Accuracy", ge=0, le=1),
-                        timeout: int = Path(default=150, title="Timeout", ge=20)):
+async def run_algorithm(accuracy: float = 0.95,
+                        timeout: int = 150):
     """
     Run the process using the provided minimum accuracy of the genetic algorithm.
 
@@ -104,6 +89,7 @@ async def run_algorithm(request: Request,
     Raises:
         HTTPException: If there is an error during the process.
     """
+    
     try:
         global configuration, json_data_in_memory
 
@@ -113,12 +99,9 @@ async def run_algorithm(request: Request,
         if configuration is None:
             raise HTTPException(status_code=404,
                                 detail="No config data available")
-        # Check if the request is canceled
-        if request.scope["type"] == "websocket" and stop_threads:
-            # Request canceled, stop threads and raise HTTPException
-            raise HTTPException(status_code=499, detail="Client disconnected")
 
         result = local_algorithm(accuracy=accuracy, timeout=timeout)
+        
         return JSONResponse(content=json.loads(result))
     except HTTPException as http_err:
         raise http_err

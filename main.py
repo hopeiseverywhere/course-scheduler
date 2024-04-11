@@ -1,4 +1,4 @@
-from fastapi import Body, FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request, Path
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 import json
@@ -30,6 +30,19 @@ app = FastAPI(title="Course Schedular API",
 
 json_data_in_memory = None
 configuration = None
+stop_threads = False  # Flag to signal threads to stop
+
+
+@app.on_event("startup")
+async def startup_event():
+    global stop_threads
+    stop_threads = False  # Reset the flag on startup
+
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    global stop_threads
+    stop_threads = True  # Set the flag to stop threads on shutdown
 
 
 class BaseRequest(BaseModel):
@@ -55,7 +68,6 @@ async def save_data(data: List[BaseRequest]):
         saved_data = []
         for item in data:
             if item.section:
-                
                 # Save section data
                 saved_data.append({"section": item.section.dict()})
             elif item.room:
@@ -65,7 +77,6 @@ async def save_data(data: List[BaseRequest]):
                 raise HTTPException(
                     status_code=400, detail="Invalid request format")
 
-        
         json_data_in_memory = saved_data
 
         configuration = Configuration()
@@ -76,14 +87,16 @@ async def save_data(data: List[BaseRequest]):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-
-@app.get("/run/{accuracy}")
-async def run_algorithm(accuracy: float = 0.95):
+@app.get("/run/{accuracy}/{timeout}")
+async def run_algorithm(request: Request, 
+                        accuracy: float = Path(default=0.95, title="Accuracy", ge=0, le=1),
+                        timeout: int = Path(default=150, title="Timeout", ge=20)):
     """
     Run the process using the provided minimum accuracy of the genetic algorithm.
 
     Args:
-        id (float): The minimum accuracy of the algorithm. Defaults to 0.95.
+        accuracy (float): The minimum accuracy of the algorithm. Defaults to 0.95.
+        timeout (int): The maximum time (in seconds) to wait for the algorithm to complete. Defaults to 150 seconds.
 
     Returns:
         JSONResponse: The result of the process in JSON format.
@@ -93,20 +106,26 @@ async def run_algorithm(accuracy: float = 0.95):
     """
     try:
         global configuration, json_data_in_memory
+
         if json_data_in_memory is None:
             raise HTTPException(status_code=404,
                                 detail="No JSON data available")
         if configuration is None:
             raise HTTPException(status_code=404,
                                 detail="No config data available")
+        # Check if the request is canceled
+        if request.scope["type"] == "websocket" and stop_threads:
+            # Request canceled, stop threads and raise HTTPException
+            raise HTTPException(status_code=499, detail="Client disconnected")
 
-        result = local_algorithm(accuracy=accuracy)
+        result = local_algorithm(accuracy=accuracy, timeout=timeout)
         return JSONResponse(content=json.loads(result))
     except HTTPException as http_err:
         raise http_err
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Accuracy and timeout parameters are required and must be valid.")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
 
 
 @app.delete("/clear")
@@ -131,44 +150,61 @@ async def clear():
     return JSONResponse({"message": "Data cleared successfully"})
 
 
-def local_algorithm(accuracy=0.95):
+def local_algorithm(accuracy=0.95, timeout=100):
     """Local version of the algorithm"""
     global configuration
 
-    start_time = int(round(time.time() * 1000))
-    pool_size = 10
-    thread_list = []
-    for i in range(pool_size):
-        alg = GeneticAlgorithm(configuration)
-        thread_list.append(
-            (Thread(target=alg.run, args=(9999, accuracy,)), alg))
-        thread_list[i][0].start()
+    try:
+        start_time = int(round(time.time() * 1000))
+        pool_size = 5
+        thread_list = []
+        for i in range(pool_size):
+            alg = GeneticAlgorithm(configuration)
+            thread_list.append(
+                (Thread(target=alg.run, args=(9999, accuracy,)), alg))
+            thread_list[i][0].start()
 
-    best = None
-    configuration_found = False
-    while not configuration_found:
-        for thread in thread_list:
-            if thread[1].solution_found is True:
-                best = thread[1]
-                configuration_found = True
-
-        if configuration_found:
+        # Block until a configuration is found or timeout is reached
+        best = None
+        configuration_found = False
+        elapsed_time = 0
+        while not configuration_found and elapsed_time < timeout:
             for thread in thread_list:
-                thread[1].set_solution_found(True)
-                thread[0].join()
+                if thread[1].solution_found:
+                    best = thread[1]
+                    configuration_found = True
+                    break  # Exit the loop if a solution is found
+            time.sleep(1)  # Check every second
+            elapsed_time = (int(round(time.time() * 1000)) -
+                            start_time) / 1000.0
 
-    seconds = (int(round(time.time() * 1000)) - start_time) / 1000.0
+        # Check if timeout occurred
+        if not configuration_found:
+            raise TimeoutError(
+                "Algorithm execution exceeded the specified timeout")
 
-    # visualize test
-    html_result = HtmlOutput.getResult(best.result)
-    file_name = "temp.json"
-    temp_file_path = tempfile.gettempdir() + file_name.replace(".json", ".htm")
-    writer = codecs.open(temp_file_path, "w", "utf-8")
-    writer.write(html_result)
-    writer.close()
-    os.system("open " + temp_file_path)
+        # End all threads gracefully
+        for thread in thread_list:
+            thread[1].set_solution_found(True)
+            thread[0].join()
 
-    print(f"\nCompleted in {seconds} secs.\n")
-    # Assuming get_result is defined elsewhere
-    result = get_result(best.result)
-    return result
+        seconds = (int(round(time.time() * 1000)) - start_time) / 1000.0
+
+        # visualize test
+        # html_result = HtmlOutput.getResult(best.result)
+        # file_name = "temp.json"
+        # temp_file_path = tempfile.gettempdir() + file_name.replace(".json", ".htm")
+        # writer = codecs.open(temp_file_path, "w", "utf-8")
+        # writer.write(html_result)
+        # writer.close()
+        # os.system("open " + temp_file_path)
+
+        print(f"\nCompleted in {seconds} secs.\n")
+        # Assuming get_result is defined elsewhere
+        result = get_result(best.result)
+        return result
+    except TimeoutError as e:
+        # Raise a custom HTTPException with 500 status code and detailed message
+        raise HTTPException(
+            status_code=500, detail=f"Algorithm execution exceeded the specified timeout of {timeout} seconds.")
+

@@ -92,3 +92,4 @@ class Room(BaseModel):
         if value <= 0:
             raise ValueError('Value must be a positive integer')
         return value
+

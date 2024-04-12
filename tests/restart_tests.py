@@ -16,20 +16,20 @@ def restart_tests():
     min_fitness = 0.99
     iterations = 200
     # Testing regular method
-    for i in range(iterations):
-        start_time = int(round(time.time() * 1000))
-        configuration = Configuration()
-        configuration.parse_file(data)
-        solution = GeneticAlgorithm(configuration)
-        manager = mp.Manager()
-        result = manager.dict()
-        keep_searching = manager.Event()
-        solution.run(keep_searching, result, max_repeat, min_fitness)
-        seconds = (int(round(time.time() * 1000)) - start_time) / 1000.0
-        with open('output.csv', 'a', newline='') as csvfile:
-            writer = csv.writer(csvfile)
-            writer.writerow([0, i, solution.current_generation, seconds])
-        print("Finished standard, iteration {}".format(i))
+    # for i in range(iterations):
+    #     start_time = int(round(time.time() * 1000))
+    #     configuration = Configuration()
+    #     configuration.parse_file(data)
+    #     solution = GeneticAlgorithm(configuration)
+    #     manager = mp.Manager()
+    #     result = manager.dict()
+    #     keep_searching = manager.Event()
+    #     solution.run(keep_searching, result, max_repeat, min_fitness)
+    #     seconds = (int(round(time.time() * 1000)) - start_time) / 1000.0
+    #     with open('output.csv', 'a', newline='') as csvfile:
+    #         writer = csv.writer(csvfile)
+    #         writer.writerow([0, i, solution.current_generation, seconds])
+    #     print("Finished standard, iteration {}".format(i))
 
     # Testing parallel method
     for j in range(iterations):

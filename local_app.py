@@ -26,7 +26,7 @@ def local_app():
         configuration = Configuration()
         configuration.parse_file(data)
         alg = GeneticAlgorithm(configuration)
-        process_list.append(mp.Process(target=alg.run, args=(keep_searching, result, 5000, 0.99)))
+        process_list.append(mp.Process(target=alg.run, args=(keep_searching, result, 9999, 0.99)))
         process_list[i].start()
     print("Threads created {}".format((int(round(time.time() * 1000)) - start_time) / 1000.0))
 

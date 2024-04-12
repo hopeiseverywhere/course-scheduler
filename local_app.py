@@ -14,6 +14,7 @@ def local_app():
     """Local version starter
     """
     start_time = int(round(time.time() * 1000))
+    print(start_time)
 
     # configuration = Configuration()
     # configuration.parse_file(data)
@@ -21,7 +22,7 @@ def local_app():
     # best.run(9999, 0.975)
 
     # Set up the number of threads (quantity below) to search for an algorithm
-    pool_size = os.cpu_count() - 1  # minus one for main (parent) thread
+    pool_size = 5
     thread_list = []
     for i in range(pool_size):
         configuration = Configuration()
@@ -29,6 +30,8 @@ def local_app():
         alg = GeneticAlgorithm(configuration)
         thread_list.append((Thread(target=alg.run, args=(9999, 0.999,)), alg))
         thread_list[i][0].start()
+
+    print("Threads created {}".format((int(round(time.time() * 1000)) - start_time) / 1000.0))
         
 
     # Block until a configuration is found

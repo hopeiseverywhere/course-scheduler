@@ -140,7 +140,6 @@ def local_algorithm(accuracy=0.95, timeout=100):
 
     try:
         start_time = int(round(time.time() * 1000))
-
         # Set up the number of threads (quantity below) to search for an algorithm
         pool_size = min(5, os.cpu_count() - 1)
         pool = []

@@ -139,7 +139,7 @@ def local_algorithm(accuracy=0.95, timeout=100):
 
     try:
         start_time = int(round(time.time() * 1000))
-        pool_size = 5  # minus one for main (parent) thread
+        pool_size = 5
         thread_list = []
         for i in range(pool_size):
             alg = GeneticAlgorithm(configuration)

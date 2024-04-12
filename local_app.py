@@ -18,20 +18,23 @@ def local_app():
     # Set up the number of threads (quantity below) to search for an algorithm
     pool_size = min(5, os.cpu_count() - 1)
     print("Pool size: {}".format(pool_size))
-    process_list = []
+    pool = []
     manager = mp.Manager()
     result = manager.dict()
     keep_searching = manager.Event()
+    keep_searching.set()
+
+    # Create the processes and start them
     for i in range(pool_size):
         configuration = Configuration()
         configuration.parse_file(data)
         alg = GeneticAlgorithm(configuration)
-        process_list.append(mp.Process(target=alg.run, args=(keep_searching, result, 9999, 0.99)))
-        process_list[i].start()
+        pool.append(mp.Process(target=alg.run, args=(keep_searching, result, 9999, 0.99)))
+        pool[i].start()
     print("Threads created {}".format((int(round(time.time() * 1000)) - start_time) / 1000.0))
 
     # Block until a configuration is found
-    for process in process_list:
+    for process in pool:
         process.join()
 
     # Get best result (first solution that satisfies constraints to be found)
@@ -47,6 +50,7 @@ def local_app():
 
     # save json version of result
     get_result(solution.result)
+    print("Iterations: {}".format(solution.current_generation))
 
     # time table visualization
     html_result = HtmlOutput.getResult(solution.result)

@@ -41,6 +41,7 @@ def restart_tests():
         manager = mp.Manager()
         result = manager.dict()
         keep_searching = manager.Event()
+        keep_searching.set()
 
         # Create the processes and start them
         for i in range(pool_size):

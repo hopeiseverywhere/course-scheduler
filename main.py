@@ -147,6 +147,9 @@ def local_algorithm(accuracy=0.95, timeout=100):
         manager = mp.Manager()
         result = manager.dict()
         keep_searching = manager.Event()
+        keep_searching.set()
+
+        # Create the processes and start them
         for i in range(pool_size):
             alg = GeneticAlgorithm(configuration)
             process_list.append(mp.Process(target=alg.run, args=(keep_searching, result, 9999, accuracy)))

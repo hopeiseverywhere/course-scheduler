@@ -7,56 +7,68 @@ import time
 from model.Configuration import Configuration
 from algorithm.GeneticAlgorithm import GeneticAlgorithm
 from io_data.input.testData import data
-from threading import Thread
 import csv
+import multiprocessing as mp
 
 
-def local_app():
+def restart_tests():
+    max_repeat = 5000
+    min_fitness = 0.99
+    iterations = 200
     # Testing regular method
-    for i in range(20):
-        start_time = int(round(time.time() * 1000))
-        configuration = Configuration()
-        configuration.parse_file(data)
-        best = GeneticAlgorithm(configuration)
-        best.run(9999, 0.999)
-        seconds = (int(round(time.time() * 1000)) - start_time) / 1000.0
-        with open('output.csv', 'a', newline='') as csvfile:
-            writer = csv.writer(csvfile)
-            writer.writerow([0, i, best.current_generation, seconds])
-        print("Finished standard, iteration {}".format(i))
+    # for i in range(iterations):
+    #     start_time = int(round(time.time() * 1000))
+    #     configuration = Configuration()
+    #     configuration.parse_file(data)
+    #     solution = GeneticAlgorithm(configuration)
+    #     manager = mp.Manager()
+    #     result = manager.dict()
+    #     keep_searching = manager.Event()
+    #     solution.run(keep_searching, result, max_repeat, min_fitness)
+    #     seconds = (int(round(time.time() * 1000)) - start_time) / 1000.0
+    #     with open('output.csv', 'a', newline='') as csvfile:
+    #         writer = csv.writer(csvfile)
+    #         writer.writerow([0, i, solution.current_generation, seconds])
+    #     print("Finished standard, iteration {}".format(i))
 
-
-    for j in range(20):
+    # Testing parallel method
+    for j in range(iterations):
         start_time = int(round(time.time() * 1000))
-        pool_size = 10
-        thread_list = []
+
+        # Arguments of multiprocessor pool
+        pool_size = min(5, os.cpu_count() - 1)
+        pool = []
+        manager = mp.Manager()
+        result = manager.dict()
+        keep_searching = manager.Event()
+        keep_searching.set()
+
+        # Create the processes and start them
         for i in range(pool_size):
             configuration = Configuration()
             configuration.parse_file(data)
             alg = GeneticAlgorithm(configuration)
-            thread_list.append((Thread(target=alg.run, args=(9999, 0.99,)), alg))
-            thread_list[i][0].start()
+            pool.append(mp.Process(target=alg.run, args=(keep_searching, result, max_repeat, min_fitness)))
+            pool[i].start()
 
         # Block until a configuration is found
-        best = None
-        configuration_found = False
-        while not configuration_found:
-            # Check if any have finished. If one has, set it to best
-            for thread in thread_list:
-                if thread[1].solution_found is True:
-                    best = thread[1]
-                    configuration_found = True
+        for process in pool:
+            process.join()
 
-            # If a configuration was found, end all threads gracefully (set their solution found to true)
-            if configuration_found is True:
-                for thread in thread_list:
-                    thread[1].set_solution_found(True)
-                    thread[0].join()
-
+        # Get best result (first solution that satisfies constraints to be found)
+        solution = result['solution']
         seconds = (int(round(time.time() * 1000)) - start_time) / 1000.0
+
+        # Ensure a solution was actually found
+        if solution is not None:
+            current_generation = solution.current_generation
+        else:
+            current_generation = max_repeat * 2
+
+        # Write results to csv
         with open('output.csv', 'a', newline='') as csvfile:
             writer = csv.writer(csvfile)
-            writer.writerow([2, j, best.current_generation, seconds])
+            writer.writerow([2, j, current_generation, seconds])
         print("Finished parallel, iteration {}".format(j))
 
     # # Testing restart method
@@ -87,4 +99,4 @@ def local_app():
     #     print("Finished new, iteration {}".format(i))
 
 if __name__ == '__main__':
-    local_app()
+    restart_tests()

@@ -5,6 +5,7 @@ import json
 import asyncio
 import time
 from typing import List, Union
+import multiprocessing as mp
 from threading import Thread
 
 import codecs
@@ -139,39 +140,67 @@ def local_algorithm(accuracy=0.95, timeout=100):
 
     try:
         start_time = int(round(time.time() * 1000))
-        pool_size = 5
-        thread_list = []
+        # Set up the number of threads (quantity below) to search for an algorithm
+        pool_size = min(5, os.cpu_count() - 1)
+        pool = []
+        manager = mp.Manager()
+        result = manager.dict()
+        keep_searching = manager.Event()
+        keep_searching.set()
+
+        # Create the processes and start them
         for i in range(pool_size):
             alg = GeneticAlgorithm(configuration)
-            thread_list.append(
-                (Thread(target=alg.run, args=(9999, accuracy,)), alg))
-            thread_list[i][0].start()
+            pool.append(mp.Process(target=alg.run, args=(keep_searching, result, 9999, accuracy)))
+            pool[i].start()
 
-        # Block until a configuration is found or timeout is reached
-        best = None
-        configuration_found = False
-        elapsed_time = 0
-        while not configuration_found and elapsed_time < timeout:
-            for thread in thread_list:
-                if thread[1].solution_found:
-                    best = thread[1]
-                    configuration_found = True
-                    break  # Exit the loop if a solution is found
-            time.sleep(1)  # Check every second
-            elapsed_time = (int(round(time.time() * 1000)) -
-                            start_time) / 1000.0
+        # Block until a configuration is found
+        for process in pool:
+            process.join()
 
-        # Check if timeout occurred
-        if not configuration_found:
-            raise TimeoutError(
-                "Algorithm execution exceeded the specified timeout")
+        # Get best result (first solution that satisfies constraints to be found)
+        solution = result['solution']
 
-        # End all threads gracefully
-        for thread in thread_list:
-            thread[1].set_solution_found(True)
-            thread[0].join()
-
+        # Save the number of seconds it took to find the result and let child threads terminate gracefully
         seconds = (int(round(time.time() * 1000)) - start_time) / 1000.0
+
+        # Check that solution found
+        if solution is None:
+            raise TimeoutError("Algorithm execution exceeded the specified timeout")
+
+        # pool_size = 5  # minus one for main (parent) thread
+        # thread_list = []
+        # for i in range(pool_size):
+        #     alg = GeneticAlgorithm(configuration)
+        #     thread_list.append(
+        #         (Thread(target=alg.run, args=(9999, accuracy,)), alg))
+        #     thread_list[i][0].start()
+        #
+        # # Block until a configuration is found or timeout is reached
+        # best = None
+        # configuration_found = False
+        # elapsed_time = 0
+        # while not configuration_found and elapsed_time < timeout:
+        #     for thread in thread_list:
+        #         if thread[1].solution_found:
+        #             best = thread[1]
+        #             configuration_found = True
+        #             break  # Exit the loop if a solution is found
+        #     time.sleep(1)  # Check every second
+        #     elapsed_time = (int(round(time.time() * 1000)) -
+        #                     start_time) / 1000.0
+        #
+        # # Check if timeout occurred
+        # if not configuration_found:
+        #     raise TimeoutError(
+        #         "Algorithm execution exceeded the specified timeout")
+        #
+        # # End all threads gracefully
+        # for thread in thread_list:
+        #     thread[1].set_solution_found(True)
+        #     thread[0].join()
+        #
+        # seconds = (int(round(time.time() * 1000)) - start_time) / 1000.0
 
         # visualize test
         # html_result = HtmlOutput.getResult(best.result)
@@ -184,7 +213,7 @@ def local_algorithm(accuracy=0.95, timeout=100):
 
         print(f"\nCompleted in {seconds} secs.\n")
         # Assuming get_result is defined elsewhere
-        result = get_result(best.result)
+        result = get_result(solution.result)
         return result
     except TimeoutError as e:
         # Raise a custom HTTPException with 500 status code and detailed message

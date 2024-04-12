@@ -2,7 +2,6 @@ from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 import json
-import asyncio
 import time
 from typing import List, Union
 import multiprocessing as mp
@@ -62,7 +61,7 @@ async def save_data(data: List[BaseRequest]):
                 saved_data.append({"room": item.room.dict()})
             else:
                 raise HTTPException(
-                    status_code=400, detail="Invalid request format")
+                    status_code=400, detail="Invalid request format.")
 
         json_data_in_memory = saved_data
 
@@ -71,7 +70,7 @@ async def save_data(data: List[BaseRequest]):
         print(configuration)
         return JSONResponse({"message": "Data saved successfully"})
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @app.get("/run/{accuracy}/{timeout}")
@@ -90,26 +89,30 @@ async def run_algorithm(accuracy: float = 0.95,
     Raises:
         HTTPException: If there is an error during the process.
     """
-    
     try:
         global configuration, json_data_in_memory
 
         if json_data_in_memory is None:
             raise HTTPException(status_code=404,
-                                detail="No JSON data available")
+                                detail="No JSON data available.")
         if configuration is None:
             raise HTTPException(status_code=404,
-                                detail="No config data available")
+                                detail="No config data available.")
+        # Check accuracy and timeout ranges
+        if not (0.2 <= accuracy <= 1):
+            raise ValueError("Accuracy must be in the range 0.2 to 1")
+        if not (10 <= timeout <= 250):
+            raise ValueError("Timeout must be in the range 10 to 250")
 
         result = local_algorithm(accuracy=accuracy, timeout=timeout)
-        
         return JSONResponse(content=json.loads(result))
+
     except HTTPException as http_err:
         raise http_err
-    except ValueError:
-        raise HTTPException(status_code=400, detail="Accuracy and timeout parameters are required and must be valid.")
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e)) from e
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @app.delete("/clear")
@@ -131,10 +134,10 @@ async def clear():
     configuration = None
     json_data_in_memory = None
 
-    return JSONResponse({"message": "Data cleared successfully"})
+    return JSONResponse({"message": "Data cleared successfully."})
 
 
-def local_algorithm(accuracy=0.95, timeout=100):
+def local_algorithm(accuracy=0.95, timeout=150):
     """Local version of the algorithm"""
     global configuration
 
@@ -149,60 +152,38 @@ def local_algorithm(accuracy=0.95, timeout=100):
         keep_searching.set()
 
         # Create the processes and start them
-        for i in range(pool_size):
+        for _i in range(pool_size):
             alg = GeneticAlgorithm(configuration)
-            pool.append(mp.Process(target=alg.run, args=(keep_searching, result, 9999, accuracy)))
-            pool[i].start()
+            # Add timeout to the process
+            process = mp.Process(target=alg.run, args=(
+                keep_searching, result, 9999, accuracy))
+            process.start()
+            # Store process and its timeout as a tuple in the pool list
+            pool.append((process, time.time() + timeout))
 
-        # Block until a configuration is found
-        for process in pool:
-            process.join()
+        # Block until a configuration is found or timeout occurs
+        for process, end_time in pool:
+            # Calculate remaining time
+            remaining_time = max(0, end_time - time.time())
+            process.join(remaining_time)  # Join with remaining time
 
+        # Save the number of seconds it took to find the result
+        seconds = (int(round(time.time() * 1000)) - start_time) / 1000.0
+        # print(f"Seconds: {seconds}")
+
+        # Check if the algorithm exceeded the timeout
+        if seconds > timeout:
+            raise TimeoutError(
+                f"Algorithm execution exceeded the specified timeout of {timeout} seconds.")
         # Get best result (first solution that satisfies constraints to be found)
         solution = result['solution']
 
-        # Save the number of seconds it took to find the result and let child threads terminate gracefully
-        seconds = (int(round(time.time() * 1000)) - start_time) / 1000.0
-
         # Check that solution found
         if solution is None:
-            raise TimeoutError("Algorithm execution exceeded the specified timeout")
+            raise ValueError(
+                "No solution found within the specified timeout of {timeout} seconds.")
 
-        # pool_size = 5  # minus one for main (parent) thread
-        # thread_list = []
-        # for i in range(pool_size):
-        #     alg = GeneticAlgorithm(configuration)
-        #     thread_list.append(
-        #         (Thread(target=alg.run, args=(9999, accuracy,)), alg))
-        #     thread_list[i][0].start()
-        #
-        # # Block until a configuration is found or timeout is reached
-        # best = None
-        # configuration_found = False
-        # elapsed_time = 0
-        # while not configuration_found and elapsed_time < timeout:
-        #     for thread in thread_list:
-        #         if thread[1].solution_found:
-        #             best = thread[1]
-        #             configuration_found = True
-        #             break  # Exit the loop if a solution is found
-        #     time.sleep(1)  # Check every second
-        #     elapsed_time = (int(round(time.time() * 1000)) -
-        #                     start_time) / 1000.0
-        #
-        # # Check if timeout occurred
-        # if not configuration_found:
-        #     raise TimeoutError(
-        #         "Algorithm execution exceeded the specified timeout")
-        #
-        # # End all threads gracefully
-        # for thread in thread_list:
-        #     thread[1].set_solution_found(True)
-        #     thread[0].join()
-        #
-        # seconds = (int(round(time.time() * 1000)) - start_time) / 1000.0
-
-        # visualize test
+        # Visualize Test
         # html_result = HtmlOutput.getResult(best.result)
         # file_name = "temp.json"
         # temp_file_path = tempfile.gettempdir() + file_name.replace(".json", ".htm")
@@ -218,5 +199,13 @@ def local_algorithm(accuracy=0.95, timeout=100):
     except TimeoutError as e:
         # Raise a custom HTTPException with 500 status code and detailed message
         raise HTTPException(
-            status_code=500, detail=f"Algorithm execution exceeded the specified timeout of {timeout} seconds.")
+            status_code=500, detail=str(e)) from e
 
+    except ValueError as e:
+        # Raise a custom HTTPException with 500 status code and detailed message
+        raise HTTPException(
+            status_code=500, detail=str(e)) from e
+
+    except Exception as e:
+        # Check general exceptions
+        print("An error occurred:", e)

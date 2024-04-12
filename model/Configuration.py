@@ -370,8 +370,9 @@ class Configuration:
                                        sec2.section_id)))
 
     def __str__(self) -> str:
-        info = f"Number of Rooms: {self.number_of_rooms}\n"
-        info += f"Number of Sections: {self.number_of_sections}\n"
+        info = "Configuration Loaded\n"
+        info += f"Number of Rooms: {self.number_of_rooms}\n"
+        info += f"Number of Sections: {self.number_of_sections}"
         return info
 
     @property

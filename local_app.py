@@ -2,13 +2,14 @@ import codecs
 import os
 import tempfile
 import time
+import multiprocessing as mp
 
 from model.Configuration import Configuration
 from algorithm.GeneticAlgorithm import GeneticAlgorithm
 from api.Api_Output import get_result
 from local_output.HtmlOutput import HtmlOutput
 from io_data.input.testData import data
-import multiprocessing as mp
+
 
 def local_app():
     """Local version starter
@@ -50,7 +51,7 @@ def local_app():
 
     # save json version of result
     get_result(solution.result)
-    print("Iterations: {}".format(solution.current_generation))
+    print(f"Iterations: {solution.current_generation}")
 
     # time table visualization
     html_result = HtmlOutput.getResult(solution.result)
@@ -59,7 +60,8 @@ def local_app():
     writer = codecs.open(temp_file_path, "w", "utf-8")
     writer.write(html_result)
     writer.close()
-    os.system("start " + temp_file_path)
+    # os.system("start " + temp_file_path)
+    os.system("open " + temp_file_path)
 
     # Save HTML file locally
     io_data_folder = "io_data"
@@ -68,12 +70,11 @@ def local_app():
     with open(local_file_path, "w", encoding="utf-8") as local_writer:
         local_writer.write(html_result)
     print(f"\nCompleted in {seconds} secs.\n")
-    
 
-    # print room mapped to day and time slot table
+    # Print room mapped to day and time slot table for testing
     # best.result.configuration.print_room_slot()
 
-    # print final criteria
+    # Print final criteria for testing
     # best.result.print_final_criteria()
 
 

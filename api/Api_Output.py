@@ -46,10 +46,10 @@ def get_result(solution: Schedule):
     # Write the JSON string to the file
     with open(file_path, 'w') as json_file:
         json_file.write(json_string)
-    # save a csv version as well
+    # Save the csv version as well
     convert_json_to_csv(json_file_name)
 
     print("JSON data saved to", file_path)
     print("Final Fitness: ", solution.fitness)
-    print("Fitness = {} / {}".format(solution.score, solution.criteria_length))
+    print(f"Fitness Criteria = {solution.score} / {solution.criteria_length}")
     return json_string

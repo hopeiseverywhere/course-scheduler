@@ -57,7 +57,7 @@ class GeneticAlgorithm:
         self.current_generation = 0
         self.solution_found = False
 
-    def run(self, max_repeat=9999, min_fitness=0.989, timeout=None):
+    def run(self, keep_searching, result, max_repeat=9999, min_fitness=0.989, timeout=None):
         # clear best chromosome group from previous execution
         self.clear_best()
         self.initialize(self._chromosomes)
@@ -67,7 +67,7 @@ class GeneticAlgorithm:
         repeat = 0
         last_best_fit = 0.0
         start_time = time()
-        while not self.solution_found:
+        while not keep_searching.is_set():
             elapsed_time = time() - start_time
             if timeout and elapsed_time >= timeout:
                 raise TimeoutError(
@@ -79,7 +79,9 @@ class GeneticAlgorithm:
             # reached best
             if best.fitness > min_fitness:
                 #print("Iterations to find solution: {}".format(self.current_generation))
-                self.solution_found = True
+                #self.solution_found = True
+                keep_searching.clear()
+                result['solution'] = self
                 break
             if self.current_generation >= max_repeat * 2:
                 # print()

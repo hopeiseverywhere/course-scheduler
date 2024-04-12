@@ -144,7 +144,10 @@ def local_algorithm(accuracy=0.95, timeout=150):
     try:
         start_time = int(round(time.time() * 1000))
         # Set up the number of threads (quantity below) to search for an algorithm
+        print(f"CPU count: {os.cpu_count()}")
         pool_size = min(5, os.cpu_count() - 1)
+        if pool_size <= 0:
+            pool_size = 1
         pool = []
         manager = mp.Manager()
         result = manager.dict()
@@ -169,19 +172,19 @@ def local_algorithm(accuracy=0.95, timeout=150):
 
         # Save the number of seconds it took to find the result
         seconds = (int(round(time.time() * 1000)) - start_time) / 1000.0
-        # print(f"Seconds: {seconds}")
+        print(f"Elapsed seconds so far: {seconds}")
 
         # Check if the algorithm exceeded the timeout
         if seconds > timeout:
             raise TimeoutError(
                 f"Algorithm execution exceeded the specified timeout of {timeout} seconds.")
         # Get best result (first solution that satisfies constraints to be found)
-        solution = result['solution']
+        ga_solution = result.get('solution')
 
         # Check that solution found
-        if solution is None:
+        if ga_solution is None:
             raise ValueError(
-                "No solution found within the specified timeout of {timeout} seconds.")
+                f"No solution found within the specified timeout of {timeout} seconds.")
 
         # Visualize Test
         # html_result = HtmlOutput.getResult(best.result)
@@ -192,10 +195,10 @@ def local_algorithm(accuracy=0.95, timeout=150):
         # writer.close()
         # os.system("open " + temp_file_path)
 
-        print(f"\nCompleted in {seconds} secs.\n")
+        print(f"\nAlgorithm completed in {seconds} secs.\n")
         # Assuming get_result is defined elsewhere
-        result = get_result(solution.result)
-        return result
+        json_result = get_result(ga_solution.result)
+        return json_result
     except TimeoutError as e:
         # Raise a custom HTTPException with 500 status code and detailed message
         raise HTTPException(

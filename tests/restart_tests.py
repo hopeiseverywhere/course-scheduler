@@ -37,7 +37,7 @@ def restart_tests():
 
         # Arguments of multiprocessor pool
         pool_size = min(5, os.cpu_count() - 1)
-        process_list = []
+        pool = []
         manager = mp.Manager()
         result = manager.dict()
         keep_searching = manager.Event()
@@ -48,11 +48,11 @@ def restart_tests():
             configuration = Configuration()
             configuration.parse_file(data)
             alg = GeneticAlgorithm(configuration)
-            process_list.append(mp.Process(target=alg.run, args=(keep_searching, result, max_repeat, min_fitness)))
-            process_list[i].start()
+            pool.append(mp.Process(target=alg.run, args=(keep_searching, result, max_repeat, min_fitness)))
+            pool[i].start()
 
         # Block until a configuration is found
-        for process in process_list:
+        for process in pool:
             process.join()
 
         # Get best result (first solution that satisfies constraints to be found)

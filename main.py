@@ -143,7 +143,7 @@ def local_algorithm(accuracy=0.95, timeout=100):
 
         # Set up the number of threads (quantity below) to search for an algorithm
         pool_size = min(5, os.cpu_count() - 1)
-        process_list = []
+        pool = []
         manager = mp.Manager()
         result = manager.dict()
         keep_searching = manager.Event()
@@ -152,11 +152,11 @@ def local_algorithm(accuracy=0.95, timeout=100):
         # Create the processes and start them
         for i in range(pool_size):
             alg = GeneticAlgorithm(configuration)
-            process_list.append(mp.Process(target=alg.run, args=(keep_searching, result, 9999, accuracy)))
-            process_list[i].start()
+            pool.append(mp.Process(target=alg.run, args=(keep_searching, result, 9999, accuracy)))
+            pool[i].start()
 
         # Block until a configuration is found
-        for process in process_list:
+        for process in pool:
             process.join()
 
         # Get best result (first solution that satisfies constraints to be found)

@@ -1,9 +1,6 @@
 # Version
 ver=5.0
 
-# Reference
-https://github.com/mcychan/GASchedule.py
-
 
 # How-to
 - Sample data input: /io_data/testData.py
